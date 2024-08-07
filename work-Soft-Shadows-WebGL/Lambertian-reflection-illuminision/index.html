@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGL2 - 3D Directional Lighting</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://webglfundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
+  <script src="https://webgl2fundamentals.org/webgl/resources/webgl-utils.js"></script>
+  <script src="https://twgljs.org/dist/4.x/twgl.min.js" async></script>
+  <script src="https://webgl2fundamentals.org/webgl/resources/m4.js"></script>
+</head>
+<body>
+<div class="description">
+Drag slider to rotate F.
+</div>
+<canvas id="canvas" width="399" height="299"></canvas>
+<div id="uiContainer">
+  <div id="ui">
+    <div id="fRotation">
+      <div class="gman-widget-outer">
+        <div class="gman-widget-label">fRotation</div>
+        <div class="gman-widget-value">0</div>
+        <input class="gman-widget-slider" type="range" min="-360" max="360" value="0">
+      </div>
+      <div class="gman-widget-outer">
+        <div class="gman-widget-label">lightRotationX</div>
+        <div class="gman-widget-value">0</div>
+        <input class="gman-widget-slider" type="range" min="-360" max="360" value="0">
+      </div>
+      <div class="gman-widget-outer">
+        <div class="gman-widget-label">lightRotationY</div>
+        <div class="gman-widget-value">0</div>
+        <input class="gman-widget-slider" type="range" min="-360" max="360" value="0">
+      </div>
+      <div class="gman-widget-outer">
+        <div class="gman-widget-label">innerLimit</div>
+        <div class="gman-widget-value">0</div>
+        <input class="gman-widget-slider" type="range" min="0" max="100" value="0">
+      </div>
+      <div class="gman-widget-outer">
+        <div class="gman-widget-label">outerLimit</div>
+        <div class="gman-widget-value">0</div>
+        <input class="gman-widget-slider" type="range" min="0" max="100" value="0">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="resources/webgl-utils.js"></script>
+<script src="resources/webgl-lessons-ui.js"></script>
+<script src="resources/m4.js"></script>
+<script src="mainPhong.js"></script>
+</body>
+</html>
