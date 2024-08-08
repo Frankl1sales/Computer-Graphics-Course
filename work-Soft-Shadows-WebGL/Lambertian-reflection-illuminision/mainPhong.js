@@ -587,3 +587,4 @@ function setNormals(gl) {
 }
 
 main();
+
