@@ -5,7 +5,7 @@
 Ray tracing é uma técnica de renderização que simula de maneira realista a iluminação de uma cena e dos objetos nela contidos, incluindo reflexos, refrações, sombras e iluminação indireta com precisão física. Esse processo cria imagens gráficas ao seguir o trajeto da luz, começando da câmera de visualização (que define sua perspectiva da cena), passando pelo plano de visualização 2D (onde os pixels são representados), entrando na cena 3D e retornando às fontes de luz. [NVIDIA.DEVELOPER](https://developer.nvidia.com/discover/ray-tracing)
 
 <div style="text-align: center;">
-    <img src="https://d29g4g2dyqv443.cloudfront.net/sites/default/files/pictures/2018/RayTracing/ray-tracing-image-1.jpg" alt="Ray Tracing Image" style="width: 50%;"/>
+    <img src="https://d29g4g2dyqv443.cloudfront.net/sites/default/files/pictures/2018/RayTracing/ray-tracing-image-1.jpg" alt="Ray Tracing Image" style="width: 70%;"/>
     <p style="text-align: center;">Fonte: <a href="https://d29g4g2dyqv443.cloudfront.net/sites/default/files/pictures/2018/RayTracing/ray-tracing-image-1.jpg">Ray Tracing Image</a></p>
 </div>
 
