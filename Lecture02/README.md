@@ -29,6 +29,11 @@ Monte Carlo Ray Tracing é uma abordagem probabilística mais avançada do ray t
 
 As "amostras" no contexto do Monte Carlo Ray Tracing referem-se aos cálculos individuais dos *caminhos que os raios de luz podem seguir em uma cena virtual*. Cada amostra simula a interação da luz com os objetos e superfícies, incluindo reflexões e refrações. Essas amostras são geradas aleatoriamente para explorar os diferentes caminhos possíveis da luz. Como muitas amostras são necessárias para criar uma imagem realista e reduzir o ruído, quanto mais amostras forem usadas, mais precisa será a simulação e menor será o ruído na imagem final.
 
+<div style="text-align: center;">
+    <img src="https://i.sstatic.net/YfcUu.jpg" alt="MCRT1 Image" style="width: 50%;"/>
+    <p style="text-align: center;">Fonte: <a href="https://stackoverflow.com/questions/43449353/why-is-my-monte-carlo-raytracing-so-noisy">Stackoverflow</a></p>
+</div>
+
 1. **Amostragem Aleatória**: Em vez de calcular um único caminho de luz, o MCRT amostra muitos caminhos aleatórios para estimar a iluminação de forma mais precisa.
 2. **Iluminação Global**: MCRT pode simular fenômenos complexos como iluminação indireta, difusa e especular de forma mais eficaz, resultando em imagens com mais realismo.
 3. **Cálculo de Integrals**: Utiliza técnicas de integração estocástica para calcular a contribuição da luz para cada pixel, levando em conta múltiplos caminhos de luz e interações com diferentes superfícies.
