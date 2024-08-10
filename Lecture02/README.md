@@ -58,3 +58,38 @@ Pesquisas recentes têm se concentrado em antecipar a redução de ruído no pro
 Desde a publicação deste artigo, houve um grande número de novas publicações sobre redução de ruído, com técnicas como ReSTIR, a suíte de redução de ruído da NVIDIA e métodos de aprendizado de máquina tendo avançado consideravelmente. Embora este artigo possa precisar de atualizações para incorporar esses trabalhos recentes, as ideias aqui apresentadas ainda permanecem relevantes hoje. 💬[Alain Galvan, 2020](https://alain.xyz/blog/ray-tracing-denoising)
 
 
+**Machine Learning** e **técnicas de amostragem** são abordagens distintas para resolver problemas de renderização e redução de ruído em gráficos computacionais, e ambas têm suas próprias metodologias e objetivos.
+
+## Machine Learning
+
+- **Abordagem:** Utiliza modelos treinados para aprender padrões e fazer previsões baseadas em grandes conjuntos de dados. Para redução de ruído e outras tarefas relacionadas a gráficos, isso envolve o treinamento de redes neurais para identificar e remover ruído das imagens ou para aprimorar a qualidade visual.
+  
+- **Exemplos Aplicados:** 
+  - **Autoencoders** para redução de ruído ([Khademi Kalantari et al. 2013], [Khademi Kalantari et al. 2015])
+  - **Deep Learning Super Sampling (DLSS 2.0)** da NVIDIA para escalonamento e melhoria da qualidade visual ([Dong et al. 2015], [Ledig et al. 2016])
+  - **Neural Radiance Fields (NeRFs)** para simular efeitos dependentes da visão e melhorar a qualidade da imagem ([Verbin et al. 2021], [Mildenhall et al. 2022])
+
+- **Objetivo:** Aprimorar a qualidade das imagens e reduzir o ruído através de técnicas que aprendem a partir de dados. Machine learning pode lidar com complexidades e variações que métodos tradicionais podem não capturar bem.
+
+## Técnicas de Amostragem
+
+- **Abordagem:** Envolve a coleta e processamento de múltiplas amostras para estimar a iluminação e a aparência de uma cena. Técnicas de amostragem visam melhorar a precisão da simulação e a qualidade visual ao amostrar várias vezes os caminhos da luz e suas interações.
+
+- **Exemplos Aplicados:** 
+  - **Anti-Aliasing Temporal** para suavizar a imagem ao longo do tempo ([Korein et al. 1983], [Yang et al. 2020])
+  - **Filtro Espacial-Temporal** e **SVGF** para reduzir o ruído em cenas com movimentos ([Mara et al. 2017], [Schied 2017])
+  - **Regressão de Recursos Multiordem por Blocos (BMFR)** para melhorar a precisão da estimativa de iluminação ([Koskela et al. 2019])
+
+- **Objetivo:** Melhorar a qualidade visual e reduzir o ruído acumulando e processando múltiplas amostras da cena. Técnicas de amostragem frequentemente focam em maneiras de usar eficientemente os dados de amostras para reduzir artefatos visuais e melhorar a precisão das imagens renderizadas.
+
+### Comparação Machine Learning e Técnicas de Amostragem
+
+- **Machine Learning:** Foca em aprender padrões a partir de dados e aplicar esses aprendizados para melhorar a qualidade da imagem e reduzir o ruído de maneira adaptativa e dinâmica.
+  
+- **Técnicas de Amostragem:** Envolve a coleta e processamento de várias amostras para estimar a iluminação e a aparência da cena com maior precisão, muitas vezes aplicando métodos matemáticos e estatísticos para lidar com variações e reduzir artefatos.
+
+Ambas as abordagens podem ser complementares. Machine learning pode ser usado para aprimorar e automatizar processos de amostragem, enquanto técnicas de amostragem podem fornecer dados valiosos para treinar modelos de machine learning.
+
+
+
+
