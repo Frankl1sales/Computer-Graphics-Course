@@ -9,6 +9,11 @@ Ray tracing é uma técnica de renderização que simula de maneira realista a i
     <p style="text-align: center;">Fonte: <a href="https://d29g4g2dyqv443.cloudfront.net/sites/default/files/pictures/2018/RayTracing/ray-tracing-image-1.jpg">Ray Tracing Image</a></p>
 </div>
 
+<div align="center">
+    <img src="https://d29g4g2dyqv443.cloudfront.net/sites/default/files/pictures/2018/RayTracing/ray-tracing-image-1.jpg" alt="RT1 Image" style="width: 70%;"/>
+    <p>Fonte: <a href="https://d29g4g2dyqv443.cloudfront.net/sites/default/files/pictures/2018/RayTracing/ray-tracing-image-1.jpg">NVIDIA</a></p>
+</div>
+
 Ele segue uma abordagem direta:
 1. **Ray Casting**: Raios são lançados a partir da câmera e passam por cada pixel da imagem.
 2. **Interseção com Objetos**: Cada raio é testado para verificar se intersecta com objetos na cena.
@@ -22,15 +27,15 @@ O ray tracing básico pode calcular reflexões e refrações, mas o tratamento d
 
 Monte Carlo Ray Tracing é uma abordagem probabilística mais avançada do ray tracing. Ele utiliza métodos estatísticos e amostragens para simular efeitos de iluminação global de maneira mais realista.
 
-<div style="text-align: center;">
+<div align="center">
     <img src="https://i.sstatic.net/S9T42.png" alt="MCRT1 Image" style="width: 50%;"/>
-    <p style="text-align: center;">Fonte: <a href="https://stackoverflow.com/questions/43449353/why-is-my-monte-carlo-raytracing-so-noisy">Stackoverflow</a></p>
+    <p>Fonte: <a href="https://stackoverflow.com/questions/43449353/why-is-my-monte-carlo-raytracing-so-noisy">Stackoverflow</a></p>
 </div>
 
 As "amostras" no contexto do Monte Carlo Ray Tracing referem-se aos cálculos individuais dos *caminhos que os raios de luz podem seguir em uma cena virtual*. Cada amostra simula a interação da luz com os objetos e superfícies, incluindo reflexões e refrações. Essas amostras são geradas aleatoriamente para explorar os diferentes caminhos possíveis da luz. Como muitas amostras são necessárias para criar uma imagem realista e reduzir o ruído, quanto mais amostras forem usadas, mais precisa será a simulação e menor será o ruído na imagem final.
 
 <div align="center">
-    <img src="https://i.sstatic.net/YfcUu.jpg" alt="MCRT1 Image" style="width: 50%;"/>
+    <img src="https://i.sstatic.net/YfcUu.jpg" alt="MCRT2 Image" style="width: 50%;"/>
     <p>Fonte: <a href="https://stackoverflow.com/questions/43449353/why-is-my-monte-carlo-raytracing-so-noisy">Stackoverflow</a></p>
 </div>
 
