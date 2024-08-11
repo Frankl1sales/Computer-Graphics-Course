@@ -57,8 +57,23 @@ Pesquisas recentes têm se concentrado em antecipar a redução de ruído no pro
 
 Desde a publicação deste artigo, houve um grande número de novas publicações sobre redução de ruído, com técnicas como ReSTIR, a suíte de redução de ruído da NVIDIA e métodos de aprendizado de máquina tendo avançado consideravelmente. Embora este artigo possa precisar de atualizações para incorporar esses trabalhos recentes, as ideias aqui apresentadas ainda permanecem relevantes hoje. 💬[Alain Galvan, 2020](https://alain.xyz/blog/ray-tracing-denoising)
 
+## Soluções interna ao Ray tracing
 
-**Machine Learning** e **técnicas de amostragem** são abordagens distintas para resolver problemas de renderização e redução de ruído em gráficos computacionais, e ambas têm suas próprias metodologias e objetivos.
+No MCRT, as técnicas internas se referem a métodos que são aplicados diretamente dentro do pipeline de ray tracing para melhorar a qualidade da imagem gerada.
+
+Essas técnicas são integradas diretamente ao processo de renderização e buscam melhorar a imagem gerada pelo MCRT, abordando questões como ruído e granulação.
+
+### Filtering techniques
+
+Técnicas de filtragem como os filtros Gaussiano, Bilateral, À-Trous, Guiado e de Mediana são usadas para suavizar imagens geradas por ray tracing Monte Carlo. Os filtros Guiados, por exemplo, utilizam buffers de características (como normais, albedo e profundidade) e buffers especializados (dados do primeiro rebote e comprimento do caminho reprojetado) em métodos recentes de redução de ruído e em implementações comerciais.
+
+Embora essas técnicas sejam eficazes e econômicas, elas podem reduzir a qualidade da imagem, resultando na perda de detalhes finos, como bordas nítidas. Esse impacto pode ser tão significativo que afeta a uniformidade do brilho, criando artefatos de "sal e pimenta" em áreas de destaque e sombras.
+
+## Soluções Externas ao Ray Tracing
+
+As técnicas externas ao MCRT são aplicadas fora do processo de renderização ray tracing e frequentemente utilizam métodos adicionais para melhorar a qualidade da imagem ou otimizar o processo. Incluem técnicas que são aplicadas após o processo de ray tracing ou em combinação com ele para otimizar a imagem final.
+
+**Machine Learning** e **técnicas de amostragem** são abordagens distintas para resolver problemas de renderização e redução de ruído em gráficos computacionais, e ambas têm suas próprias metodologias e objetivos. Ray Tracing Denoising pode ser abordado tanto por meio de técnicas baseadas em Machine Learning quanto por técnicas de amostragem. A escolha entre uma abordagem e outra (ou uma combinação de ambas) depende dos requisitos específicos do projeto, como a necessidade de precisão, o tempo de processamento disponível e a qualidade visual desejada.
 
 ## Machine Learning
 
