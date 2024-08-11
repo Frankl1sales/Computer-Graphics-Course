@@ -1,7 +1,7 @@
 # 📖️ Leitura 2: Ray Tracing Denoising 
 <div align="center">
-    <img src="https://blogs.nvidia.com/wp-content/uploads/2022/03/path-tracing-ray-tracing-rasterization.png" alt="game Image" style="width: 100%;"/>
-    <p>Fonte: <a href="https://www.nvidia.com/ja-jp/geforce/news/gfecnt/20229/portal-with-rtx-ray-tracing/">NVIDIA</a></p>
+    <img src="https://d29g4g2dyqv443.cloudfront.net/sites/default/files/dlss.jpg" alt="game Image" style="width: 100%;"/>
+    <p>Fonte: <a href="https://developer.nvidia.com/rtx/ray-tracing">NVIDIA</a></p>
 </div>
 
 ## Índice
