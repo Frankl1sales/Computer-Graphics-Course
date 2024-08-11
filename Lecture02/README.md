@@ -145,7 +145,9 @@ Ambas as abordagens podem ser complementares. Machine learning pode ser usado pa
 
 É uma técnica de escalonamento que utiliza redes neurais para gerar imagens de alta resolução a partir de uma resolução mais baixa. Ele melhora a qualidade visual e aumenta a resolução aparente, reduzindo a carga computacional necessária para renderizar imagens em alta resolução. DLSS pode ajudar a suavizar a aparência de imagens e pode reduzir o impacto do ruído, mas seu foco principal é a melhoria da resolução e performance.
 
+![Reconstruction VS Denoiser](https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/denoisers-remove-information-required-for-upscaling.jpg)
 
+![Ray Reconstruction](https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/dlss-3-5-ray-reconstruction-is-smarter-than-denoisers.jpg)
 
 ## Fontes
 
