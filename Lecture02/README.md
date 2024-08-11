@@ -148,6 +148,32 @@ Ambas as abordagens podem ser complementares. Machine learning pode ser usado pa
     <p>Fonte: <a href="https://alain.xyz/blog/ray-tracing-denoising">Alain Galvan, 2020</a></p>
 </div>
 
+Claro, aqui está a explicação com os nomes dos pontos em inglês e a descrição em português:
+
+### 1. **Prepass**
+   - **O que é?**: Nesta etapa, você prepara os dados iniciais necessários para o ray tracing.
+   - **Como funciona?**: Calcula a velocidade da cena no espaço NDC (Normalized Device Coordinates) e coleta informações essenciais como albedo (cor da superfície) e normais (direções das superfícies). Em alguns casos, você pode precisar calcular essas informações para o primeiro bounce de luz, o que requer um pré-processamento mais detalhado com ray tracing.
+
+### 2. **Ray Trace**
+   - **O que é?**: Aqui você usa o ray tracing para simular como a luz interage com a cena.
+   - **Como funciona?**: A amostragem adaptativa por IA é utilizada para decidir onde são necessárias mais amostras, como em áreas de destaque ou sombra, ajudando a evitar ruído indesejado e a manter a qualidade da luminância. Separa o processamento de reflexões especulares e iluminação global, tratando reflexões especulares com dados mais precisos e a iluminação global e sombras com métodos mais simples.
+
+### 3. **Accumulation**
+   - **O que é?**: Coleta e combina dados de múltiplos quadros para melhorar a qualidade da imagem.
+   - **Como funciona?**: Utiliza técnicas de reprojeção espacial-temporal para ajustar os dados coletados de acordo com a posição atual. Para dados lambertianos (como iluminação global), isso é mais simples, mas para dados especulares (como reflexões), é mais complexo. Usa informações anteriores para melhorar a precisão da imagem atual.
+
+### 4. **Statistical Analysis**
+   - **O que é?**: Analisa a variância dos dados de imagem ray-traced para ajustar o processo de filtragem.
+   - **Como funciona?**: Avalia a variância na luminância e na velocidade da cena para ajustar a reprojeção e a filtragem. Tenta eliminar "fireflies" (pontos brilhantes indesejados) usando essas informações estatísticas.
+
+### 5. **Filtering**
+   - **O que é?**: Refina a imagem final para remover ruído e melhorar a qualidade.
+   - **Como funciona?**: Usa um filtro bilateral À-Trous para suavizar a imagem. Aplica o filtro várias vezes para atingir o nível desejado de desfoque, ajustando a intensidade do desfoque a cada aplicação. Alternativamente, um autoencoder de denoising pode ser usado para obter melhores resultados, embora mais lentamente.
+
+### 6. **History Blit**
+   - **O que é?**: Salva os dados atuais para uso futuro.
+   - **Como funciona?**: Registra informações como albedo e profundidade que foram calculadas no pré-processamento. Esses dados são mantidos para o próximo quadro, facilitando a reprojeção e o processamento contínuo.
+
 ## Deep learning super sampling (DLSS)
 
 É uma técnica de escalonamento que utiliza redes neurais para gerar imagens de alta resolução a partir de uma resolução mais baixa. Ele melhora a qualidade visual e aumenta a resolução aparente, reduzindo a carga computacional necessária para renderizar imagens em alta resolução. DLSS pode ajudar a suavizar a aparência de imagens e pode reduzir o impacto do ruído, mas seu foco principal é a melhoria da resolução e performance.
