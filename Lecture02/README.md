@@ -153,7 +153,14 @@ A solução apresentada é o **NVIDIA DLSS 3.5**, que inclui a inovação **Ray 
     <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
 </div>
 
-Treinada com 5 vezes mais dados do que o DLSS 3, a **Ray Reconstruction** identifica diferentes efeitos de ray tracing para tomar decisões mais inteligentes sobre o uso de dados temporais e espaciais, além de preservar informações de alta frequência para um upscaling de qualidade superior. Treinada com imagens renderizadas offline, que exigem muito mais poder computacional do que o disponível em tempo real durante um jogo, a **Ray Reconstruction** reconhece padrões de iluminação a partir dos dados de treinamento, como iluminação global ou oclusão de ambiente, e os recria no jogo enquanto você joga. Os resultados obtidos são superiores aos alcançados com denoisers ajustados manualmente.
+Treinada com 5 vezes mais dados do que o DLSS 3, a **Ray Reconstruction** identifica diferentes efeitos de ray tracing para tomar decisões mais inteligentes sobre o uso de dados temporais e espaciais, além de preservar informações de alta frequência para um upscaling de qualidade superior. 
+
+<div align="center">
+    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/introducing-nvidia-dlss-3-5-with-ai-powered-ray-reconstruction.jpg" alt="DLSS2 IMAGE" style="width: 100%;"/>
+    <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
+</div>
+
+Treinada com imagens renderizadas offline, que exigem muito mais poder computacional do que o disponível em tempo real durante um jogo, a **Ray Reconstruction** reconhece padrões de iluminação a partir dos dados de treinamento, como iluminação global ou oclusão de ambiente, e os recria no jogo enquanto você joga. Os resultados obtidos são superiores aos alcançados com denoisers ajustados manualmente.
 
 <div align="center">
     <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/dlss-3-5-ray-reconstruction-is-smarter-than-denoisers.jpg" alt="DLSS2 IMAGE" style="width: 100%;"/>
