@@ -109,6 +109,8 @@ As técnicas externas ao MCRT são aplicadas fora do processo de renderização 
 
 **Machine Learning** e **técnicas de amostragem** são abordagens distintas para resolver problemas de renderização e redução de ruído em gráficos computacionais, e ambas têm suas próprias metodologias e objetivos. Ray Tracing Denoising pode ser abordado tanto por meio de técnicas baseadas em Machine Learning quanto por técnicas de amostragem. A escolha entre uma abordagem e outra (ou uma combinação de ambas) depende dos requisitos específicos do projeto, como a necessidade de precisão, o tempo de processamento disponível e a qualidade visual desejada.
 
+OBS: **Filtragem Avançada com aprendizado de máquina e redes neurais**, como redes neurais bilaterais, é geralmente considerada uma técnica externa porque é aplicada após a renderização para otimizar a qualidade da imagem.
+
 ## Machine Learning
 
 - **Abordagem:** Utiliza modelos treinados para aprender padrões e fazer previsões baseadas em grandes conjuntos de dados. Para redução de ruído e outras tarefas relacionadas a gráficos, isso envolve o treinamento de redes neurais para identificar e remover ruído das imagens ou para aprimorar a qualidade visual.
@@ -139,10 +141,18 @@ As técnicas externas ao MCRT são aplicadas fora do processo de renderização 
 
 Ambas as abordagens podem ser complementares. Machine learning pode ser usado para aprimorar e automatizar processos de amostragem, enquanto técnicas de amostragem podem fornecer dados valiosos para treinar modelos de machine learning.
 
+## Deep learning super sampling
+
+É uma técnica de escalonamento que utiliza redes neurais para gerar imagens de alta resolução a partir de uma resolução mais baixa. Ele melhora a qualidade visual e aumenta a resolução aparente, reduzindo a carga computacional necessária para renderizar imagens em alta resolução. DLSS pode ajudar a suavizar a aparência de imagens e pode reduzir o impacto do ruído, mas seu foco principal é a melhoria da resolução e performance.
+
+
+
 ## Fontes
 
 - [Alain Galvan, 2020](https://alain.xyz/blog/ray-tracing-denoising)
 - [Firmino, A., Frisvad, J. R., & Jensen, H. W. (2023). Denoising-Aware Adaptive Sampling for Monte Carlo Ray Tracing. *Proceedings of the ACM SIGGRAPH Conference on Computer Graphics and Interactive Techniques*.](https://dl.acm.org/doi/pdf/10.1145/3588432.3591537)
-- [NVIDIA DLSS 3.5 | New Ray Reconstruction Enhances Ray Tracing with AI](https://www.youtube.com/watch?v=sGKCrcNsVzo&t=1s)
-
+- [NVIDIA DLSS 3.5 | New Ray Reconstruction Enhances Ray Tracing with AI](https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/)
+- [Ray Tracing Essentials Part 4: The Ray Tracing Pipeline](https://developer.nvidia.com/blog/ray-tracing-essentials-part-4-the-ray-tracing-pipeline/)
+- [NVIDIA DLSS 3 ](https://www.nvidia.com/en-us/geforce/technologies/dlss/)
+- [Deep learning super sampling -wikipedia](https://en.wikipedia.org/wiki/Deep_learning_super_sampling)
 
