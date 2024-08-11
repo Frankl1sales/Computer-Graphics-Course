@@ -145,7 +145,7 @@ Ambas as abordagens podem ser complementares. Machine learning pode ser usado pa
 
 É uma técnica de escalonamento que utiliza redes neurais para gerar imagens de alta resolução a partir de uma resolução mais baixa. Ele melhora a qualidade visual e aumenta a resolução aparente, reduzindo a carga computacional necessária para renderizar imagens em alta resolução. DLSS pode ajudar a suavizar a aparência de imagens e pode reduzir o impacto do ruído, mas seu foco principal é a melhoria da resolução e performance.
 
-### Ray Reconstruction == Denoiser
+### Ray Reconstruction == Denoiser with IA?
 A solução apresentada é o **NVIDIA DLSS 3.5**, que inclui a inovação **Ray Reconstruction**. Essa tecnologia faz parte de um renderizador neural avançado, alimentado por IA, que aprimora a qualidade das imagens geradas por ray tracing em todas as GPUs GeForce RTX. Em vez de usar denoisers ajustados manualmente, o Ray Reconstruction utiliza uma rede de IA treinada por supercomputadores da NVIDIA para criar pixels de maior qualidade entre os raios amostrados, funcionando efetivamente como um denoiser mais sofisticado e preciso.
 
 <div align="center">
