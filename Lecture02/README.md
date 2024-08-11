@@ -148,8 +148,6 @@ Ambas as abordagens podem ser complementares. Machine learning pode ser usado pa
     <p>Fonte: <a href="https://alain.xyz/blog/ray-tracing-denoising">Alain Galvan, 2020</a></p>
 </div>
 
-Claro, aqui está a explicação com os nomes dos pontos em inglês e a descrição em português:
-
 ### 1. **Prepass**
    - **O que é?**: Nesta etapa, você prepara os dados iniciais necessários para o ray tracing.
    - **Como funciona?**: Calcula a velocidade da cena no espaço NDC (Normalized Device Coordinates) e coleta informações essenciais como albedo (cor da superfície) e normais (direções das superfícies). Em alguns casos, você pode precisar calcular essas informações para o primeiro bounce de luz, o que requer um pré-processamento mais detalhado com ray tracing.
