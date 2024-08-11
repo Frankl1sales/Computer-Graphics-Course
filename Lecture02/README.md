@@ -141,6 +141,13 @@ OBS: **Filtragem Avançada com aprendizado de máquina e redes neurais**, como r
 
 Ambas as abordagens podem ser complementares. Machine learning pode ser usado para aprimorar e automatizar processos de amostragem, enquanto técnicas de amostragem podem fornecer dados valiosos para treinar modelos de machine learning.
 
+## Denoiser Genérico
+
+<div align="center">
+    <img src="https://alain.xyz/blog/ray-tracing-denoising/assets/ideal-denoiser.svg" alt="Denoiser Generico Image" style="width: 100%;"/>
+    <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
+</div>
+
 ## Deep learning super sampling (DLSS)
 
 É uma técnica de escalonamento que utiliza redes neurais para gerar imagens de alta resolução a partir de uma resolução mais baixa. Ele melhora a qualidade visual e aumenta a resolução aparente, reduzindo a carga computacional necessária para renderizar imagens em alta resolução. DLSS pode ajudar a suavizar a aparência de imagens e pode reduzir o impacto do ruído, mas seu foco principal é a melhoria da resolução e performance.
