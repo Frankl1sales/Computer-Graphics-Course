@@ -3,44 +3,47 @@
 ## Índice
 
 1. **[O que é Ray Tracing?](#-o-que-é-ray-tracing)**
-   - Definição e Funcionamento
-   - Abordagem Direta
-   - Imagem Ilustrativa
+   - Definição e funcionamento
+   - Abordagem direta
+   - Imagem ilustrativa
 
 2. **[Diferença de Ray Tracing e Monte Carlo Ray Tracing](#-diferença-de-ray-tracing-e-monte-carlo-ray-tracing)**
    - Monte Carlo Ray Tracing
-   - Amostragem Aleatória
-   - Iluminação Global
-   - Imagens Ilustrativas
+   - Amostragem aleatória
+   - Iluminação global
+   - Imagens ilustrativas
 
 3. **[O que é Ray Tracing Denoising?](#-o-que-é-ray-tracing-denoising)**
-   - Definição e Importância
-   - Técnicas de Redução de Ruído
-   - Avanços Recentes e Exemplos
+   - Definição e importância
+   - Técnicas de redução de ruído
+   - Avanços recentes e exemplos
 
-4. **[Soluções Internas ao Ray Tracing](#soluções-internas-ao-ray-tracing)**
-   - Técnicas de Filtragem
-   - Impacto na Qualidade da Imagem
+4. **[Denoisers Genéricos](#denoisers-genéricos)**
+   - Definição e importância
+   - Técnicas comuns
+   - Exemplos de aplicação
 
-5. **[Soluções Externas ao Ray Tracing](#soluções-externas-ao-ray-tracing)**
+5. **[Soluções Internas ao Ray Tracing](#soluções-internas-ao-ray-tracing)**
+   - Técnicas de filtragem
+   - Impacto na qualidade da imagem
+
+6. **[Soluções Externas ao Ray Tracing](#soluções-externas-ao-ray-tracing)**
    - Machine Learning
-     - Abordagem e Exemplos Aplicados
+     - Abordagem e exemplos aplicados
      - Objetivo
    - Técnicas de Amostragem
-     - Abordagem e Exemplos Aplicados
+     - Abordagem e exemplos aplicados
      - Objetivo
    - Comparação entre Machine Learning e Técnicas de Amostragem
 
-6. **[Denoiser Genérico](#denoiser-genérico)**
-   - Prepass
-   - Ray Trace
-   - Accumulation
-   - Statistical Analysis
-   - Filtering
-   - History Blit
+7. **[Deep Learning Super Sampling (DLSS)](#deep-learning-super-sampling-dlss)**
+   - Definição e funcionamento
+   - Implementações e exemplos
+   - Comparação com outras técnicas
 
-7. **[Fontes](#fontes)**
-   - Referências e Links para Artigos e Recursos
+8. **[Fontes](#fontes)**
+   - Referências e links para artigos e recursos
+
 
 ## 💡 O que é Ray Tracing?
 
