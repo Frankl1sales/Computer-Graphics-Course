@@ -147,13 +147,13 @@ Ambas as abordagens podem ser complementares. Machine learning pode ser usado pa
 
 
 <div align="center">
-    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/denoisers-remove-information-required-for-upscaling.jpg" alt="DLSS2 Image" style="width: 80%;"/>
+    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/denoisers-remove-information-required-for-upscaling.jpg" alt="DLSS2 Image" style="width: 100%;"/>
     <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
 </div>
 
 
 <div align="center">
-    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/dlss-3-5-ray-reconstruction-is-smarter-than-denoisers.jpg" alt="DLSS2 IMAGE" style="width: 80%;"/>
+    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/dlss-3-5-ray-reconstruction-is-smarter-than-denoisers.jpg" alt="DLSS2 IMAGE" style="width: 100%;"/>
     <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
 </div>
 
