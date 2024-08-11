@@ -1,7 +1,7 @@
 # 📖️ Leitura 2: Ray Tracing Denoising 
 <div align="center">
     <img src="https://d29g4g2dyqv443.cloudfront.net/sites/default/files/dlss.jpg" alt="game Image" style="width: 100%;"/>
-    <p>Fonte: <a href="https://developer.nvidia.com/rtx/ray-tracing">NVIDIA</a></p>
+    <p>Fonte: <a href="https://blog.nvidia.com.br/blog/o-que-e-path-tracing/">NVIDIA</a></p>
 </div>
 
 ## Índice
