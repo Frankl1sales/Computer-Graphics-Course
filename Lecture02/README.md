@@ -86,7 +86,7 @@ As técnicas externas ao MCRT são aplicadas fora do processo de renderização 
 
 - **Objetivo:** Aprimorar a qualidade das imagens e reduzir o ruído através de técnicas que aprendem a partir de dados. Machine learning pode lidar com complexidades e variações que métodos tradicionais podem não capturar bem.
 
-## Técnicas de Amostragem
+### Técnicas de Amostragem
 
 - **Abordagem:** Envolve a coleta e processamento de múltiplas amostras para estimar a iluminação e a aparência de uma cena. Técnicas de amostragem visam melhorar a precisão da simulação e a qualidade visual ao amostrar várias vezes os caminhos da luz e suas interações.
 
@@ -105,6 +105,12 @@ As técnicas externas ao MCRT são aplicadas fora do processo de renderização 
 
 Ambas as abordagens podem ser complementares. Machine learning pode ser usado para aprimorar e automatizar processos de amostragem, enquanto técnicas de amostragem podem fornecer dados valiosos para treinar modelos de machine learning.
 
+## Fontes
+-[Alain Galvan, 2020](https://alain.xyz/blog/ray-tracing-denoising)
+## Fontes
+
+- [Alain Galvan, 2020](https://alain.xyz/blog/ray-tracing-denoising)
+- [Firmino, A., Frisvad, J. R., & Jensen, H. W. (2023). Denoising-Aware Adaptive Sampling for Monte Carlo Ray Tracing. *Proceedings of the ACM SIGGRAPH Conference on Computer Graphics and Interactive Techniques*.](https://dl.acm.org/doi/pdf/10.1145/3588432.3591537)
 
 
 
