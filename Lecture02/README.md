@@ -1,4 +1,4 @@
-# 📖️ Leitura 2: Ray Tracing Denoising 
+# 📖️ Leitura 2: Ray Tracing 
 <div align="center">
     <img src="https://blogs.nvidia.com/wp-content/uploads/2022/03/path-tracing-ray-tracing-rasterization-672x353.png" alt="game Image" style="width: 100%;"/>
     <p>Fonte: <a href="https://blog.nvidia.com.br/blog/o-que-e-path-tracing/">NVIDIA</a></p>
