@@ -41,7 +41,7 @@
    - Implementações e exemplos
    - Comparação com outras técnicas
    
-8. **[Conclusão](#conclusão)**
+8. **[Conclusão](#-conclusão)**
    - Impacto das abordagens na qualidade da imagem
    - Futuras direções e desenvolvimentos
 
