@@ -3,36 +3,44 @@
 ## Índice
 
 1. **[O que é Ray Tracing?](#-o-que-é-ray-tracing)**
-   - Definição e funcionamento
-   - Abordagem direta
-   - Imagem ilustrativa
+   - Definição e Funcionamento
+   - Abordagem Direta
+   - Imagem Ilustrativa
 
 2. **[Diferença de Ray Tracing e Monte Carlo Ray Tracing](#-diferença-de-ray-tracing-e-monte-carlo-ray-tracing)**
    - Monte Carlo Ray Tracing
-   - Amostragem aleatória
-   - Iluminação global
-   - Imagens ilustrativas
+   - Amostragem Aleatória
+   - Iluminação Global
+   - Imagens Ilustrativas
 
 3. **[O que é Ray Tracing Denoising?](#-o-que-é-ray-tracing-denoising)**
-   - Definição e importância
-   - Técnicas de redução de ruído
-   - Avanços recentes e exemplos
+   - Definição e Importância
+   - Técnicas de Redução de Ruído
+   - Avanços Recentes e Exemplos
 
 4. **[Soluções Internas ao Ray Tracing](#soluções-internas-ao-ray-tracing)**
-   - Técnicas de filtragem
-   - Impacto na qualidade da imagem
+   - Técnicas de Filtragem
+   - Impacto na Qualidade da Imagem
 
 5. **[Soluções Externas ao Ray Tracing](#soluções-externas-ao-ray-tracing)**
    - Machine Learning
-     - Abordagem e exemplos aplicados
+     - Abordagem e Exemplos Aplicados
      - Objetivo
    - Técnicas de Amostragem
-     - Abordagem e exemplos aplicados
+     - Abordagem e Exemplos Aplicados
      - Objetivo
    - Comparação entre Machine Learning e Técnicas de Amostragem
 
-6. **[Fontes](#fontes)**
-   - Referências e links para artigos e recursos
+6. **[Denoiser Genérico](#denoiser-genérico)**
+   - Prepass
+   - Ray Trace
+   - Accumulation
+   - Statistical Analysis
+   - Filtering
+   - History Blit
+
+7. **[Fontes](#fontes)**
+   - Referências e Links para Artigos e Recursos
 
 ## 💡 O que é Ray Tracing?
 
