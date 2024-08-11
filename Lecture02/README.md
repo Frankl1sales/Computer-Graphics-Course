@@ -31,7 +31,7 @@
      - Objetivo
    - Comparação entre Machine Learning e Técnicas de Amostragem
 
-6. **[Fontes](#-fontes)**
+6. **[Fontes](#fontes)**
    - Referências e links para artigos e recursos
 
 ## 💡 O que é Ray Tracing?
@@ -139,7 +139,7 @@ As técnicas externas ao MCRT são aplicadas fora do processo de renderização 
 
 Ambas as abordagens podem ser complementares. Machine learning pode ser usado para aprimorar e automatizar processos de amostragem, enquanto técnicas de amostragem podem fornecer dados valiosos para treinar modelos de machine learning.
 
-## 📖️ Fontes
+## Fontes
 
 - [Alain Galvan, 2020](https://alain.xyz/blog/ray-tracing-denoising)
 - [Firmino, A., Frisvad, J. R., & Jensen, H. W. (2023). Denoising-Aware Adaptive Sampling for Monte Carlo Ray Tracing. *Proceedings of the ACM SIGGRAPH Conference on Computer Graphics and Interactive Techniques*.](https://dl.acm.org/doi/pdf/10.1145/3588432.3591537)
