@@ -91,7 +91,7 @@ Pesquisas recentes têm se concentrado em antecipar a redução de ruído no pro
 
 Desde a publicação deste artigo, houve um grande número de novas publicações sobre redução de ruído, com técnicas como ReSTIR, a suíte de redução de ruído da NVIDIA e métodos de aprendizado de máquina tendo avançado consideravelmente. Embora este artigo possa precisar de atualizações para incorporar esses trabalhos recentes, as ideias aqui apresentadas ainda permanecem relevantes hoje. 💬[Alain Galvan, 2020](https://alain.xyz/blog/ray-tracing-denoising)
 
-## Soluções interna ao Ray tracing
+## Soluções internas ao Ray tracing
 
 No MCRT, as técnicas internas se referem a métodos que são aplicados diretamente dentro do pipeline de ray tracing para melhorar a qualidade da imagem gerada.
 
