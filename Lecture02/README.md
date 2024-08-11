@@ -40,6 +40,10 @@
    - Definição e funcionamento
    - Implementações e exemplos
    - Comparação com outras técnicas
+   
+8. **[Conclusão](#conclusão)**
+   - Impacto das abordagens na qualidade da imagem
+   - Futuras direções e desenvolvimentos
 
 8. **[Fontes](#fontes)**
    - Referências e links para artigos e recursos
@@ -226,6 +230,9 @@ Em com o DLSS desligado, o denoiser enfrenta dificuldades com a interpolação e
     <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/dlss-3-5-ray-reconstruction-generates-better-lighting-effects.jpg" alt="DLSS4 IMAGE" style="width: 100%;"/>
     <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
 </div>
+
+## 📖️ Conclusão
+O avanço contínuo na pesquisa e desenvolvimento de técnicas de denoising, especialmente com o uso de Machine Learning e novas abordagens de amostragem, promete melhorar ainda mais a eficácia dos métodos de ray tracing. A integração dessas técnicas em pipelines de renderização permite criar imagens de alta qualidade de forma mais eficiente, atendendo às demandas de realismo e performance nos gráficos computacionais modernos.
 
 ## Fontes
 
