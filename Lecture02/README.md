@@ -141,9 +141,19 @@ OBS: **Filtragem Avançada com aprendizado de máquina e redes neurais**, como r
 
 Ambas as abordagens podem ser complementares. Machine learning pode ser usado para aprimorar e automatizar processos de amostragem, enquanto técnicas de amostragem podem fornecer dados valiosos para treinar modelos de machine learning.
 
-## Deep learning super sampling
+## Deep learning super sampling (DLSS)
 
 É uma técnica de escalonamento que utiliza redes neurais para gerar imagens de alta resolução a partir de uma resolução mais baixa. Ele melhora a qualidade visual e aumenta a resolução aparente, reduzindo a carga computacional necessária para renderizar imagens em alta resolução. DLSS pode ajudar a suavizar a aparência de imagens e pode reduzir o impacto do ruído, mas seu foco principal é a melhoria da resolução e performance.
+
+### Limitações com Denoisers manuais
+Cada denoiser ajustado manualmente compila pixels de vários quadros para aumentar o nível de detalhe, basicamente reutilizando raios de quadros anteriores. No entanto, isso pode causar problemas como o efeito fantasma, a eliminação de efeitos dinâmicos e a redução da qualidade em outras áreas. Além disso, ele interpola pixels vizinhos e mistura essas informações, mas pode acabar suavizando demais os detalhes ou não suavizando o suficiente, resultando em efeitos de iluminação não uniformes.
+
+A **Upscaling** é a última etapa do pipeline de iluminação ray-traced e é fundamental para vivenciar jogos detalhados e exigentes a taxas de quadros rápidas. No entanto, com o denoising removendo ou diminuindo a qualidade dos efeitos, as limitações dos denoisers ajustados manualmente são amplificadas, removendo detalhes finos (conhecidos como informações de alta frequência) que os amplificadores usam para gerar uma imagem nítida e limpa.
+
+<div align="center">
+    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/limitations-with-hand-tuned-denoisers.jpg" alt="Denoiser Image" style="width: 100%;"/>
+    <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
+</div>
 
 ### Ray Reconstruction == Denoiser with IA?
 A solução apresentada é o **NVIDIA DLSS 3.5**, que inclui a inovação **Ray Reconstruction**. Essa tecnologia faz parte de um renderizador neural avançado, alimentado por IA, que aprimora a qualidade das imagens geradas por ray tracing em todas as GPUs GeForce RTX. Em vez de usar denoisers ajustados manualmente, o Ray Reconstruction utiliza uma rede de IA treinada por supercomputadores da NVIDIA para criar pixels de maior qualidade entre os raios amostrados, funcionando efetivamente como um denoiser mais sofisticado e preciso.
@@ -153,6 +163,7 @@ A solução apresentada é o **NVIDIA DLSS 3.5**, que inclui a inovação **Ray 
     <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
 </div>
 
+### Ray-traced lighting pipeline
 Treinada com 5 vezes mais dados do que o DLSS 3, a **Ray Reconstruction** identifica diferentes efeitos de ray tracing para tomar decisões mais inteligentes sobre o uso de dados temporais e espaciais, além de preservar informações de alta frequência para um upscaling de qualidade superior. 
 
 <div align="center">
@@ -163,7 +174,14 @@ Treinada com 5 vezes mais dados do que o DLSS 3, a **Ray Reconstruction** identi
 Treinada com imagens renderizadas offline, que exigem muito mais poder computacional do que o disponível em tempo real durante um jogo, a **Ray Reconstruction** reconhece padrões de iluminação a partir dos dados de treinamento, como iluminação global ou oclusão de ambiente, e os recria no jogo enquanto você joga. Os resultados obtidos são superiores aos alcançados com denoisers ajustados manualmente.
 
 <div align="center">
-    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/dlss-3-5-ray-reconstruction-is-smarter-than-denoisers.jpg" alt="DLSS2 IMAGE" style="width: 100%;"/>
+    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/dlss-3-5-ray-reconstruction-is-smarter-than-denoisers.jpg" alt="DLSS3 IMAGE" style="width: 100%;"/>
+    <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
+</div>
+
+Em com o DLSS desligado, o denoiser enfrenta dificuldades com a interpolação espacial, onde não está misturando pixels suficientes, criando um efeito manchado. Além disso, ele não acumula pixels bons o suficiente dos quadros anteriores, resultando em um efeito de fervura na iluminação. Com o DLSS 3.5, ele reconhece certos padrões associados a reflexos e mantém a imagem estável, acumulando pixels precisos enquanto mistura pixels vizinhos para gerar reflexos de alta qualidade.
+
+<div align="center">
+    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/news/gamescom-ct0037/dlss-3-5-ray-reconstruction-generates-better-lighting-effects.jpg" alt="DLSS4 IMAGE" style="width: 100%;"/>
     <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
 </div>
 
