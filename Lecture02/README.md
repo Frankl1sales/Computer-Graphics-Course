@@ -1,5 +1,39 @@
 # 📖️ Leitura 2: Ray Tracing Denoising 
 
+## Índice
+
+1. **[O que é Ray Tracing?](#-o-que-é-ray-tracing)**
+   - Definição e funcionamento
+   - Abordagem direta
+   - Imagem ilustrativa
+
+2. **[Diferença de Ray Tracing e Monte Carlo Ray Tracing](#-diferença-de-ray-tracing-e-monte-carlo-ray-tracing)**
+   - Monte Carlo Ray Tracing
+   - Amostragem aleatória
+   - Iluminação global
+   - Imagens ilustrativas
+
+3. **[O que é Ray Tracing Denoising?](#-o-que-é-ray-tracing-denoising)**
+   - Definição e importância
+   - Técnicas de redução de ruído
+   - Avanços recentes e exemplos
+
+4. **[Soluções Internas ao Ray Tracing](#-soluções-internas-ao-ray-tracing)**
+   - Técnicas de filtragem
+   - Impacto na qualidade da imagem
+
+5. **[Soluções Externas ao Ray Tracing](#-soluções-externas-ao-ray-tracing)**
+   - Machine Learning
+     - Abordagem e exemplos aplicados
+     - Objetivo
+   - Técnicas de Amostragem
+     - Abordagem e exemplos aplicados
+     - Objetivo
+   - Comparação entre Machine Learning e Técnicas de Amostragem
+
+6. **[Fontes](#-fontes)**
+   - Referências e links para artigos e recursos
+
 ## 💡 O que é Ray Tracing?
 
 Ray tracing é uma técnica de renderização que simula de maneira realista a iluminação de uma cena e dos objetos nela contidos, incluindo reflexos, refrações, sombras e iluminação indireta com precisão física. Esse processo cria imagens gráficas ao seguir o trajeto da luz, começando da câmera de visualização (que define sua perspectiva da cena), passando pelo plano de visualização 2D (onde os pixels são representados), entrando na cena 3D e retornando às fontes de luz. 💬[NVIDIA.DEVELOPER](https://developer.nvidia.com/discover/ray-tracing)
