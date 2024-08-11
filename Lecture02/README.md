@@ -145,7 +145,7 @@ Ambas as abordagens podem ser complementares. Machine learning pode ser usado pa
 
 <div align="center">
     <img src="https://alain.xyz/blog/ray-tracing-denoising/assets/ideal-denoiser.svg" alt="Denoiser Generico Image" style="width: 100%;"/>
-    <p>Fonte: <a href="https://www.nvidia.com/en-us/geforce/news/nvidia-dlss-3-5-ray-reconstruction/">NVIDIA</a></p>
+    <p>Fonte: <a href="https://alain.xyz/blog/ray-tracing-denoising">Alain Galvan, 2020</a></p>
 </div>
 
 ## Deep learning super sampling (DLSS)
