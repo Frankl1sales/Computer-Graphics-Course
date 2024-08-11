@@ -18,7 +18,7 @@
    - Técnicas de redução de ruído
    - Avanços recentes e exemplos
 
-4. **[Denoisers Genéricos](#denoisers-genéricos)**
+4. **[Denoisers Genéricos](#denoiser-genérico)**
    - Definição e importância
    - Técnicas comuns
    - Exemplos de aplicação
