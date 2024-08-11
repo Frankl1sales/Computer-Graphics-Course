@@ -1,6 +1,6 @@
 # 📖️ Leitura 2: Ray Tracing Denoising 
 <div align="center">
-    <img src="https://www.nvidia.com/en-us/geforce/comparisons/portal-with-rtx-ray-tracing-01/" alt="game Image" style="width: 100%;"/>
+    <img src="https://images.nvidia.com/aem-dam/Solutions/geforce/ada/news/portal-with-rtx-ray-tracing/portal-rtx-comparison-key-visual-screenshot-001-rtxon.jpg" alt="game Image" style="width: 100%;"/>
     <p>Fonte: <a href="https://www.nvidia.com/ja-jp/geforce/news/gfecnt/20229/portal-with-rtx-ray-tracing/">NVIDIA</a></p>
 </div>
 
