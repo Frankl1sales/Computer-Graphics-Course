@@ -18,11 +18,11 @@
    - Técnicas de redução de ruído
    - Avanços recentes e exemplos
 
-4. **[Soluções Internas ao Ray Tracing](#-soluções-internas-ao-ray-tracing)**
+4. **[Soluções Internas ao Ray Tracing](#soluções-internas-ao-ray-tracing)**
    - Técnicas de filtragem
    - Impacto na qualidade da imagem
 
-5. **[Soluções Externas ao Ray Tracing](#-soluções-externas-ao-ray-tracing)**
+5. **[Soluções Externas ao Ray Tracing](#soluções-externas-ao-ray-tracing)**
    - Machine Learning
      - Abordagem e exemplos aplicados
      - Objetivo
@@ -91,25 +91,25 @@ Pesquisas recentes têm se concentrado em antecipar a redução de ruído no pro
 
 Desde a publicação deste artigo, houve um grande número de novas publicações sobre redução de ruído, com técnicas como ReSTIR, a suíte de redução de ruído da NVIDIA e métodos de aprendizado de máquina tendo avançado consideravelmente. Embora este artigo possa precisar de atualizações para incorporar esses trabalhos recentes, as ideias aqui apresentadas ainda permanecem relevantes hoje. 💬[Alain Galvan, 2020](https://alain.xyz/blog/ray-tracing-denoising)
 
-## 👾️ Soluções interna ao Ray tracing
+## Soluções interna ao Ray tracing
 
 No MCRT, as técnicas internas se referem a métodos que são aplicados diretamente dentro do pipeline de ray tracing para melhorar a qualidade da imagem gerada.
 
 Essas técnicas são integradas diretamente ao processo de renderização e buscam melhorar a imagem gerada pelo MCRT, abordando questões como ruído e granulação.
 
-### 👾️ Filtering techniques
+### Filtering techniques
 
 Técnicas de filtragem como os filtros Gaussiano, Bilateral, À-Trous, Guiado e de Mediana são usadas para suavizar imagens geradas por ray tracing Monte Carlo. Os filtros Guiados, por exemplo, utilizam buffers de características (como normais, albedo e profundidade) e buffers especializados (dados do primeiro rebote e comprimento do caminho reprojetado) em métodos recentes de redução de ruído e em implementações comerciais.
 
 Embora essas técnicas sejam eficazes e econômicas, elas podem reduzir a qualidade da imagem, resultando na perda de detalhes finos, como bordas nítidas. Esse impacto pode ser tão significativo que afeta a uniformidade do brilho, criando artefatos de "sal e pimenta" em áreas de destaque e sombras.
 
-## 👾️ Soluções Externas ao Ray Tracing
+## Soluções Externas ao Ray Tracing
 
 As técnicas externas ao MCRT são aplicadas fora do processo de renderização ray tracing e frequentemente utilizam métodos adicionais para melhorar a qualidade da imagem ou otimizar o processo. Incluem técnicas que são aplicadas após o processo de ray tracing ou em combinação com ele para otimizar a imagem final.
 
 **Machine Learning** e **técnicas de amostragem** são abordagens distintas para resolver problemas de renderização e redução de ruído em gráficos computacionais, e ambas têm suas próprias metodologias e objetivos. Ray Tracing Denoising pode ser abordado tanto por meio de técnicas baseadas em Machine Learning quanto por técnicas de amostragem. A escolha entre uma abordagem e outra (ou uma combinação de ambas) depende dos requisitos específicos do projeto, como a necessidade de precisão, o tempo de processamento disponível e a qualidade visual desejada.
 
-## 👾️ Machine Learning
+## Machine Learning
 
 - **Abordagem:** Utiliza modelos treinados para aprender padrões e fazer previsões baseadas em grandes conjuntos de dados. Para redução de ruído e outras tarefas relacionadas a gráficos, isso envolve o treinamento de redes neurais para identificar e remover ruído das imagens ou para aprimorar a qualidade visual.
   
@@ -120,7 +120,7 @@ As técnicas externas ao MCRT são aplicadas fora do processo de renderização 
 
 - **Objetivo:** Aprimorar a qualidade das imagens e reduzir o ruído através de técnicas que aprendem a partir de dados. Machine learning pode lidar com complexidades e variações que métodos tradicionais podem não capturar bem.
 
-### 👾️ Técnicas de Amostragem
+### Técnicas de Amostragem
 
 - **Abordagem:** Envolve a coleta e processamento de múltiplas amostras para estimar a iluminação e a aparência de uma cena. Técnicas de amostragem visam melhorar a precisão da simulação e a qualidade visual ao amostrar várias vezes os caminhos da luz e suas interações.
 
@@ -131,7 +131,7 @@ As técnicas externas ao MCRT são aplicadas fora do processo de renderização 
 
 - **Objetivo:** Melhorar a qualidade visual e reduzir o ruído acumulando e processando múltiplas amostras da cena. Técnicas de amostragem frequentemente focam em maneiras de usar eficientemente os dados de amostras para reduzir artefatos visuais e melhorar a precisão das imagens renderizadas.
 
-### 👾️ Comparação Machine Learning e Técnicas de Amostragem
+### Comparação Machine Learning e Técnicas de Amostragem
 
 - **Machine Learning:** Foca em aprender padrões a partir de dados e aplicar esses aprendizados para melhorar a qualidade da imagem e reduzir o ruído de maneira adaptativa e dinâmica.
   
