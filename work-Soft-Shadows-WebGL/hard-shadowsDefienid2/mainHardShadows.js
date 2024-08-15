@@ -1,5 +1,7 @@
 'use strict';
 
+'use strict';
+
 const vs = `#version 300 es
 in vec4 a_position;
 in vec2 a_texcoord;
@@ -9,34 +11,39 @@ uniform mat4 u_projection;
 uniform mat4 u_view;
 uniform mat4 u_world;
 uniform mat4 u_textureMatrix;
+uniform vec3 u_viewWorldPosition;
 
 out vec2 v_texcoord;
 out vec4 v_projectedTexcoord;
 out vec3 v_normal;
+out vec3 v_surfaceToView;
 
 void main() {
-  // Multiply the position by the matrix.
-  vec4 worldPosition = u_world * a_position;
+    // Calcula a posição no mundo
+    vec4 worldPosition = u_world * a_position;
+    gl_Position = u_projection * u_view * worldPosition;
 
-  gl_Position = u_projection * u_view * worldPosition;
+    // Passa as coordenadas de textura para o fragment shader
+    v_texcoord = a_texcoord;
 
-  // Pass the texture coord to the fragment shader.
-  v_texcoord = a_texcoord;
+    // Calcula as coordenadas projetadas para sombras
+    v_projectedTexcoord = u_textureMatrix * worldPosition;
 
-  v_projectedTexcoord = u_textureMatrix * worldPosition;
+    // Calcula o vetor normal no espaço do mundo
+    v_normal = mat3(u_world) * a_normal;
 
-  // orient the normals and pass to the fragment shader
-  v_normal = mat3(u_world) * a_normal;
+    // Calcula a direção da superfície para a visão
+    v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
 }
 `;
 
 const fs = `#version 300 es
 precision highp float;
 
-// Passed in from the vertex shader.
 in vec2 v_texcoord;
 in vec4 v_projectedTexcoord;
 in vec3 v_normal;
+in vec3 v_surfaceToView;
 
 uniform vec4 u_colorMult;
 uniform sampler2D u_texture;
@@ -47,30 +54,27 @@ uniform vec3 u_reverseLightDirection;
 out vec4 outColor;
 
 void main() {
-  // because v_normal is a varying it's interpolated
-  // so it will not be a unit vector. Normalizing it
-  // will make it a unit vector again
-  vec3 normal = normalize(v_normal);
+    // Normaliza a normal interpolada
+    vec3 normal = normalize(v_normal);
 
-  float light = dot(normal, u_reverseLightDirection);
+    // Calcula a iluminação direcional
+    float light = max(dot(normal, u_reverseLightDirection), 0.0);
 
-  vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
-  float currentDepth = projectedTexcoord.z + u_bias;
+    // Calcula as coordenadas projetadas
+    vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
+    float currentDepth = projectedTexcoord.z + u_bias;
 
-  bool inRange =
-      projectedTexcoord.x >= 0.0 &&
-      projectedTexcoord.x <= 1.0 &&
-      projectedTexcoord.y >= 0.0 &&
-      projectedTexcoord.y <= 1.0;
+    // Verifica se a posição projetada está dentro do intervalo
+    bool inRange = projectedTexcoord.x >= 0.0 && projectedTexcoord.x <= 1.0 &&
+                   projectedTexcoord.y >= 0.0 && projectedTexcoord.y <= 1.0;
 
-  // the 'r' channel has the depth values
-  float projectedDepth = texture(u_projectedTexture, projectedTexcoord.xy).r;
-  float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
+    // Obtém a profundidade projetada
+    float projectedDepth = texture(u_projectedTexture, projectedTexcoord.xy).r;
+    float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
 
-  vec4 texColor = texture(u_texture, v_texcoord) * u_colorMult;
-  outColor = vec4(
-      texColor.rgb * light * shadowLight,
-      texColor.a);
+    // Calcula a cor da textura e aplica as multiplicações de cor e iluminação
+    vec4 texColor = texture(u_texture, v_texcoord) * u_colorMult;
+    outColor = vec4(texColor.rgb * light * shadowLight, texColor.a);
 }
 `;
 
@@ -99,7 +103,9 @@ void main() {
 }
 `;
 
-function main() {
+
+
+async function main() {
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   const canvas = document.querySelector('#canvas');
@@ -124,7 +130,6 @@ function main() {
   };
   const textureProgramInfo = twgl.createProgramInfo(gl, [vs, fs], programOptions);
   const colorProgramInfo = twgl.createProgramInfo(gl, [colorVS, colorFS], programOptions);
-
   // Tell the twgl to match position with a_position,
   // normal with a_normal etc..
   twgl.setAttributePrefix("a_");
@@ -183,8 +188,126 @@ function main() {
   const cubeLinesVAO = twgl.createVAOFromBufferInfo(
       gl, colorProgramInfo, cubeLinesBufferInfo);
 
-  // image texture
+  // URL do arquivo OBJ que contém o modelo 3D.
+  const objHref = 'assets/windmill.obj';  
+
+  // Faz uma requisição HTTP para buscar o arquivo OBJ.
+  const response = await fetch(objHref);
+
+  // Converte a resposta em texto (conteúdo do arquivo OBJ).
+  const text = await response.text();
+
+  // Analisa o texto OBJ para extrair a geometria do modelo.
+  const obj = parseOBJ(text);
+
+  // Cria uma URL base a partir da localização do arquivo OBJ. 
+  // Isso facilita a localização de materiais associados.
+  const baseHref = new URL(objHref, window.location.href);
+
+  // Busca todos os arquivos de material (MTL) listados no OBJ e converte o conteúdo em texto.
+  const matTexts = await Promise.all(obj.materialLibs.map(async filename => {
+    const matHref = new URL(filename, baseHref).href;
+    const response = await fetch(matHref);
+    return await response.text();
+  }));
+
+  // Analisa os textos dos arquivos MTL para extrair as definições dos materiais.
+  const materials = parseMTL(matTexts.join('\n'));
+
+  // Define texturas padrão, como uma textura branca e uma textura normal padrão.
+  const textures = {
+    defaultWhite: twgl.createTexture(gl, {src: [255, 255, 255, 255]})
+  };
+
+  // Carrega texturas para cada material que faz referência a um mapa de textura.
+  for (const material of Object.values(materials)) {
+    Object.entries(material)
+      .filter(([key]) => key.endsWith('Map')) // Filtra apenas propriedades que terminam com 'Map' (ex: diffuseMap).
+      .forEach(([key, filename]) => {
+        let texture = textures[filename];
+        if (!texture) {
+          // Se a textura não foi carregada anteriormente, faz o download e cria a textura.
+          const textureHref = new URL(filename, baseHref).href;
+          texture = twgl.createTexture(gl, {src: textureHref, flipY: true});
+          textures[filename] = texture;
+        }
+        // Substitui o nome do arquivo pelo objeto de textura.
+        material[key] = texture;
+      });
+  }
+
+  // Hack para ajustar os materiais de forma que possamos visualizar o mapa especular.
+  Object.values(materials).forEach(m => {
+    m.shininess = 25; // Ajusta o brilho.
+    m.specular = [3, 2, 1]; // Define a cor especular.
+  });
+
+  // Material padrão usado caso algum objeto não tenha material associado.
+  const defaultMaterial = {
+    diffuse: [1, 1, 1],
+    diffuseMap: textures.defaultWhite,
+    ambient: [0, 0, 0],
+    specular: [1, 1, 1],
+    specularMap: textures.defaultWhite,
+    shininess: 400,
+    opacity: 1,
+  };
+
+  // Mapeia as geometrias do OBJ em partes renderizáveis.
+  const parts = obj.geometries.map(({material, data}) => {
+    // `data` contém arrays nomeados como 'position', 'texcoord', 'normal', etc.
+    // Como os nomes dos arrays correspondem aos atributos do shader de vértice,
+    // podemos passá-los diretamente para `createBufferInfoFromArrays`.
+
+    if (data.color) {
+      if (data.position.length === data.color.length) {
+        // Ajusta o número de componentes se os dados de cor tiverem 3 componentes (RGB).
+        data.color = { numComponents: 3, data: data.color };
+      }
+    } else {
+      // Se não houver cores de vértice, use uma cor constante (branco).
+      data.color = { value: [1, 1, 1, 1] };
+    }
+
+    // Gera tangentes se tivermos as coordenadas de textura e normais.
+    if (data.texcoord && data.normal) {
+      data.tangent = generateTangents(data.position, data.texcoord);
+    } else {
+      // Caso contrário, define tangentes padrão.
+      data.tangent = { value: [1, 0, 0] };
+    }
+
+    if (!data.texcoord) {
+      // Se não houver coordenadas de textura, usa valores padrão.
+      data.texcoord = { value: [0, 0] };
+    }
+
+    if (!data.normal) {
+      // Se não houver normais, define uma normal padrão.
+      data.normal = { value: [0, 0, 1] };
+    }
+
+    // Cria buffers para cada array de dados (posição, normal, etc.).
+    const bufferInfo = twgl.createBufferInfoFromArrays(gl, data);
+
+    // Cria um VAO (Vertex Array Object) a partir das informações do buffer e do programa de shader.
+    const windmillVAO = twgl.createVAOFromBufferInfo(gl, textureProgramInfo, bufferInfo);
+
+    // Retorna um objeto contendo o material, as informações do buffer, e o VAO para renderização.
+    return {
+      material: {
+        ...defaultMaterial, // Começa com o material padrão.
+        ...materials[material], // Sobrescreve com as propriedades do material do OBJ, se houver.
+      },
+      bufferInfo,
+      windmillVAO,
+    };
+  });
+
+      
   
+
+  // image texture Board
   const imageboardTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, imageboardTexture);
   // Inicializa com uma textura vazia
@@ -323,6 +446,7 @@ function main() {
     { type: 'slider', key: 'zombieDistance', min: 0, max: 50, change: render, precision: 1, step: 1 },
   ]);
 
+  
   const fieldOfViewRadians = degToRad(60);
 
   // Uniforms for each object.
@@ -344,7 +468,15 @@ function main() {
     u_texture: checkerboardTexture,
     u_world: m4.translation(3, 1, 0),
   };
-
+  // Uniforms for the windmill object
+  /*
+  const windmillUniforms = {
+    u_colorMult: [1, 1, 1, 1],  // white
+    u_color: [1, 1, 1, 1],      // white color
+    u_texture: imageboardTexture, // Assuming you have loaded a texture for the windmill
+    u_world: m4.translation(0, 0, 0),  // Initial position of the windmill
+  };
+  8*/
   function drawScene(
       projectionMatrix,
       cameraMatrix,
@@ -389,7 +521,18 @@ function main() {
 
     // calls gl.drawArrays or gl.drawElements
     twgl.drawBufferInfo(gl, cubeBufferInfo);
-
+  
+    // ------ Draw the windmill --------
+    for (const {bufferInfo, windmillVAO, material} of parts) {
+      // set the attributes for this part.
+      gl.bindVertexArray(windmillVAO);
+      // calls gl.uniform
+      twgl.setUniforms(programInfo, {
+        u_world: m4.translation(4, 0, 0),
+      }, material);
+      // calls gl.drawArrays or gl.drawElements
+      twgl.drawBufferInfo(gl, bufferInfo);
+    }
     // ------ Draw the plane --------
 
     // Setup all the needed attributes.
@@ -468,6 +611,8 @@ function main() {
     const target = [0, 0, 0];
     const up = [0, 1, 0];
     const cameraMatrix = m4.lookAt(cameraPosition, target, up);
+    
+    
 
     drawScene(
         projectionMatrix,
@@ -501,6 +646,25 @@ function main() {
 
       // calls gl.drawArrays or gl.drawElements
       twgl.drawBufferInfo(gl, cubeLinesBufferInfo, gl.LINES);
+    }
+    // Draw the scene with textures
+    for (const { bufferInfo, vao, material } of parts) {
+      gl.bindVertexArray(vao); // Set the attributes for this part
+
+      const mat2 = m4.multiply(
+        lightWorldMatrix, m4.inverse(lightProjectionMatrix));
+
+      // Set uniforms for the material and world matrix
+      twgl.setUniforms(textureProgramInfo, {
+        u_world: textureMatrix,
+        u_view: m4.inverse(cameraMatrix),
+        u_projection: projectionMatrix,
+        u_lightWorldPos: [settings.posX, settings.posY, settings.posZ],
+        u_viewWorldPosition: mat2,
+      }, material);
+
+      // Draw the current part
+      twgl.drawBufferInfo(gl, bufferInfo);
     }
   }
   render();
