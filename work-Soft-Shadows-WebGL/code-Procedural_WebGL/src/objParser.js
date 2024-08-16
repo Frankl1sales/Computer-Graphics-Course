@@ -1,13 +1,25 @@
-"use strict";
-
 function parseOBJ(text) {
+  // because indices are base 1 let's just fill in the 0th data
   const objPositions = [[0, 0, 0]];
   const objTexcoords = [[0, 0]];
   const objNormals = [[0, 0, 0]];
   const objColors = [[0, 0, 0]];
 
-  const objVertexData = [objPositions, objTexcoords, objNormals, objColors];
-  let webglVertexData = [[], [], [], []];
+  // same order as `f` indices
+  const objVertexData = [
+    objPositions,
+    objTexcoords,
+    objNormals,
+    objColors,
+  ];
+
+  // same order as `f` indices
+  let webglVertexData = [
+    [],   // positions
+    [],   // texcoords
+    [],   // normals
+    [],   // colors
+  ];
 
   const materialLibs = [];
   const geometries = [];
@@ -19,6 +31,8 @@ function parseOBJ(text) {
   const noop = () => {};
 
   function newGeometry() {
+    // If there is an existing geometry and it's
+    // not empty then start a new one.
     if (geometry && geometry.data.position.length) {
       geometry = undefined;
     }
@@ -30,8 +44,23 @@ function parseOBJ(text) {
       const texcoord = [];
       const normal = [];
       const color = [];
-      webglVertexData = [position, texcoord, normal, color];
-      geometry = { object, groups, material, data: { position, texcoord, normal, color } };
+      webglVertexData = [
+        position,
+        texcoord,
+        normal,
+        color,
+      ];
+      geometry = {
+        object,
+        groups,
+        material,
+        data: {
+          position,
+          texcoord,
+          normal,
+          color,
+        },
+      };
       geometries.push(geometry);
     }
   }
@@ -45,6 +74,8 @@ function parseOBJ(text) {
       const objIndex = parseInt(objIndexStr);
       const index = objIndex + (objIndex >= 0 ? 0 : objVertexData[i].length);
       webglVertexData[i].push(...objVertexData[i][index]);
+      // if this is the position index (index 0) and we parsed
+      // vertex colors then copy the vertex colors to the webgl vertex color data
       if (i === 0 && objColors.length > 1) {
         geometry.data.color.push(...objColors[index]);
       }
@@ -53,6 +84,7 @@ function parseOBJ(text) {
 
   const keywords = {
     v(parts) {
+      // if there are more than 3 values here they are vertex colors
       if (parts.length > 3) {
         objPositions.push(parts.slice(0, 3).map(parseFloat));
         objColors.push(parts.slice(3).map(parseFloat));
@@ -64,6 +96,7 @@ function parseOBJ(text) {
       objNormals.push(parts.map(parseFloat));
     },
     vt(parts) {
+      // should check for missing v and extra w?
       objTexcoords.push(parts.map(parseFloat));
     },
     f(parts) {
@@ -75,9 +108,11 @@ function parseOBJ(text) {
         addVertex(parts[tri + 2]);
       }
     },
-    s: noop,
-    mtllib(parts, unparsedArgs) {
-      materialLibs.push(unparsedArgs);
+    s: noop,    // smoothing group
+    mtllib(parts) {
+      // the spec says there can be multiple file here
+      // but I found one with a space in the filename
+      materialLibs.push(parts.join(' '));
     },
     usemtl(parts, unparsedArgs) {
       material = unparsedArgs;
@@ -108,16 +143,16 @@ function parseOBJ(text) {
     const parts = line.split(/\s+/).slice(1);
     const handler = keywords[keyword];
     if (!handler) {
-      console.warn('unhandled keyword:', keyword);
+      console.warn('unhandled keyword:', keyword);  // eslint-disable-line no-console
       continue;
     }
     handler(parts, unparsedArgs);
   }
 
+  // remove any arrays that have no entries.
   for (const geometry of geometries) {
     geometry.data = Object.fromEntries(
-      Object.entries(geometry.data).filter(([, array]) => array.length > 0)
-    );
+        Object.entries(geometry.data).filter(([, array]) => array.length > 0));
   }
 
   return {
@@ -127,6 +162,7 @@ function parseOBJ(text) {
 }
 
 function parseMapArgs(unparsedArgs) {
+  // TODO: handle options
   return unparsedArgs;
 }
 
@@ -139,17 +175,18 @@ function parseMTL(text) {
       material = {};
       materials[unparsedArgs] = material;
     },
-    Ns(parts) { material.shininess = parseFloat(parts[0]); },
-    Ka(parts) { material.ambient = parts.map(parseFloat); },
-    Kd(parts) { material.diffuse = parts.map(parseFloat); },
-    Ks(parts) { material.specular = parts.map(parseFloat); },
-    Ke(parts) { material.emissive = parts.map(parseFloat); },
-    map_Kd(parts, unparsedArgs) { material.diffuseMap = parseMapArgs(unparsedArgs); },
-    map_Ns(parts, unparsedArgs) { material.specularMap = parseMapArgs(unparsedArgs); },
+    /* eslint brace-style:0 */
+    Ns(parts)       { material.shininess      = parseFloat(parts[0]); },
+    Ka(parts)       { material.ambient        = parts.map(parseFloat); },
+    Kd(parts)       { material.diffuse        = parts.map(parseFloat); },
+    Ks(parts)       { material.specular       = parts.map(parseFloat); },
+    Ke(parts)       { material.emissive       = parts.map(parseFloat); },
+    map_Kd(parts, unparsedArgs)   { material.diffuseMap = parseMapArgs(unparsedArgs); },
+    map_Ns(parts, unparsedArgs)   { material.specularMap = parseMapArgs(unparsedArgs); },
     map_Bump(parts, unparsedArgs) { material.normalMap = parseMapArgs(unparsedArgs); },
-    Ni(parts) { material.opticalDensity = parseFloat(parts[0]); },
-    d(parts) { material.opacity = parseFloat(parts[0]); },
-    illum(parts) { material.illum = parseInt(parts[0]); },
+    Ni(parts)       { material.opticalDensity = parseFloat(parts[0]); },
+    d(parts)        { material.opacity        = parseFloat(parts[0]); },
+    illum(parts)    { material.illum          = parseInt(parts[0]); },
   };
 
   const keywordRE = /(\w*)(?: )*(.*)/;
@@ -167,11 +204,69 @@ function parseMTL(text) {
     const parts = line.split(/\s+/).slice(1);
     const handler = keywords[keyword];
     if (!handler) {
-      console.warn('unhandled keyword:', keyword);
+      console.warn('unhandled keyword:', keyword);  // eslint-disable-line no-console
       continue;
     }
     handler(parts, unparsedArgs);
   }
 
   return materials;
+}
+
+function makeIndexIterator(indices) {
+  let ndx = 0;
+  const fn = () => indices[ndx++];
+  fn.reset = () => { ndx = 0; };
+  fn.numElements = indices.length;
+  return fn;
+}
+
+function makeUnindexedIterator(positions) {
+  let ndx = 0;
+  const fn = () => ndx++;
+  fn.reset = () => { ndx = 0; };
+  fn.numElements = positions.length / 3;
+  return fn;
+}
+
+const subtractVector2 = (a, b) => a.map((v, ndx) => v - b[ndx]);
+
+function generateTangents(position, texcoord, indices) {
+  const getNextIndex = indices ? makeIndexIterator(indices) : makeUnindexedIterator(position);
+  const numFaceVerts = getNextIndex.numElements;
+  const numFaces = numFaceVerts / 3;
+
+  const tangents = [];
+  for (let i = 0; i < numFaces; ++i) {
+    const n1 = getNextIndex();
+    const n2 = getNextIndex();
+    const n3 = getNextIndex();
+
+    const p1 = position.slice(n1 * 3, n1 * 3 + 3);
+    const p2 = position.slice(n2 * 3, n2 * 3 + 3);
+    const p3 = position.slice(n3 * 3, n3 * 3 + 3);
+
+    const uv1 = texcoord.slice(n1 * 2, n1 * 2 + 2);
+    const uv2 = texcoord.slice(n2 * 2, n2 * 2 + 2);
+    const uv3 = texcoord.slice(n3 * 2, n3 * 2 + 2);
+
+    const dp12 = m4.subtractVectors(p2, p1);
+    const dp13 = m4.subtractVectors(p3, p1);
+
+    const duv12 = subtractVector2(uv2, uv1);
+    const duv13 = subtractVector2(uv3, uv1);
+
+
+    const f = 1.0 / (duv12[0] * duv13[1] - duv13[0] * duv12[1]);
+    const tangent = Number.isFinite(f)
+      ? m4.normalize(m4.scaleVector(m4.subtractVectors(
+          m4.scaleVector(dp12, duv13[1]),
+          m4.scaleVector(dp13, duv12[1]),
+        ), f))
+      : [1, 0, 0];
+
+    tangents.push(...tangent, ...tangent, ...tangent);
+  }
+
+  return tangents;
 }

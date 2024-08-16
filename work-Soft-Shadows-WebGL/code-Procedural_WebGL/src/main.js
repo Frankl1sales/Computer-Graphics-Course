@@ -12,74 +12,233 @@ async function main() {
 
   // Vertex Shader (vs)
   const vs = `#version 300 es
-    in vec4 a_position;
-    in vec3 a_normal;
-    in vec2 a_texcoord;
-    in vec4 a_color;
+  in vec4 a_position;
+  in vec3 a_normal;
+  in vec2 a_texcoord;
+  in vec4 a_color;
 
-    uniform mat4 u_projection;
-    uniform mat4 u_view;
-    uniform mat4 u_world;
-    uniform vec3 u_viewWorldPosition;
+  uniform mat4 u_projection;
+  uniform mat4 u_view;
+  uniform mat4 u_world;
+  uniform mat4 u_textureMatrix; // Matriz para sombras
+  uniform vec3 u_viewWorldPosition;
 
-    out vec3 v_normal;
-    out vec3 v_surfaceToView;
-    out vec2 v_texcoord;
-    out vec4 v_color;
+  out vec3 v_normal;
+  out vec3 v_surfaceToView;
+  out vec2 v_texcoord;
+  out vec4 v_color;
+  out vec4 v_projectedTexcoord; // Coordenadas projetadas para sombras
 
-    void main() {
-      vec4 worldPosition = u_world * a_position;
-      gl_Position = u_projection * u_view * worldPosition;
-      v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
-      v_normal = mat3(u_world) * a_normal;
-      v_texcoord = a_texcoord;
-      v_color = a_color;
-    }
+  void main() {
+    vec4 worldPosition = u_world * a_position;
+    gl_Position = u_projection * u_view * worldPosition;
+    v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
+    v_normal = mat3(u_world) * a_normal;
+    v_texcoord = a_texcoord;
+    v_color = a_color;
+    
+    // Calcula as coordenadas projetadas para sombras
+    v_projectedTexcoord = u_textureMatrix * worldPosition;
+  }
   `;
   // Fragment Shader (fs)
   const fs = `#version 300 es
-    precision highp float;
+  precision highp float;
 
-    in vec3 v_normal;
-    in vec3 v_surfaceToView;
-    in vec2 v_texcoord;
-    in vec4 v_color;
+  in vec3 v_normal;
+  in vec3 v_surfaceToView;
+  in vec2 v_texcoord;
+  in vec4 v_color;
+  in vec4 v_projectedTexcoord;
 
-    uniform vec3 diffuse;
-    uniform sampler2D diffuseMap;
-    uniform vec3 ambient;
-    uniform vec3 emissive;
-    uniform vec3 specular;
-    uniform float shininess;
-    uniform float opacity;
-    uniform vec3 u_lightDirection;
-    uniform vec3 u_ambientLight;
+  uniform vec3 diffuse;
+  uniform sampler2D diffuseMap;
+  uniform vec3 ambient;
+  uniform vec3 emissive;
+  uniform vec3 specular;
+  uniform float shininess;
+  uniform float opacity;
+  uniform vec3 u_lightDirection;
+  uniform vec3 u_ambientLight;
+  uniform sampler2D u_projectedTexture; // Textura de profundidade para sombras
+  uniform float u_bias; // Bias para evitar sombras acneicas
 
-    out vec4 outColor;
+  out vec4 outColor;
 
-    void main () {
+  void main() {
+    vec3 normal = normalize(v_normal);
+    vec3 surfaceToViewDirection = normalize(v_surfaceToView);
+    vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
+
+    float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
+    float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
+
+    vec4 diffuseMapColor = texture(diffuseMap, v_texcoord);
+    vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * v_color.rgb;
+    float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
+
+    // Calcula as coordenadas projetadas para a profundidade
+    vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
+    float currentDepth = projectedTexcoord.z + u_bias;
+
+    // Verifica a profundidade projetada
+    bool inRange = projectedTexcoord.x >= 0.0 && projectedTexcoord.x <= 1.0 &&
+                  projectedTexcoord.y >= 0.0 && projectedTexcoord.y <= 1.0;
+    float projectedDepth = texture(u_projectedTexture, projectedTexcoord.xy).r;
+    float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
+
+    outColor = vec4(
+      emissive +
+      ambient * u_ambientLight +
+      effectiveDiffuse * fakeLight * shadowLight +
+      specular * pow(specularLight, shininess),
+      effectiveOpacity);
+  }
+  `;
+  const vsshadow = `#version 300 es
+  in vec4 a_position;
+  in vec2 a_texcoord;
+  in vec3 a_normal;
+
+  uniform mat4 u_projection;
+  uniform mat4 u_view;
+  uniform mat4 u_world;
+  uniform mat4 u_textureMatrix;
+  uniform vec3 u_viewWorldPosition;
+
+  out vec2 v_texcoord;
+  out vec4 v_projectedTexcoord;
+  out vec3 v_normal;
+  out vec3 v_surfaceToView;
+
+  void main() {
+      // Calcula a posição no mundo
+      vec4 worldPosition = u_world * a_position;
+      gl_Position = u_projection * u_view * worldPosition;
+
+      // Passa as coordenadas de textura para o fragment shader
+      v_texcoord = a_texcoord;
+
+      // Calcula as coordenadas projetadas para sombras
+      v_projectedTexcoord = u_textureMatrix * worldPosition;
+
+      // Calcula o vetor normal no espaço do mundo
+      v_normal = mat3(u_world) * a_normal;
+
+      // Calcula a direção da superfície para a visão
+      v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
+  }
+  `;
+
+  const fsshadow = `#version 300 es
+  precision highp float;
+
+  in vec2 v_texcoord;
+  in vec4 v_projectedTexcoord;
+  in vec3 v_normal;
+  in vec3 v_surfaceToView;
+
+  uniform vec4 u_colorMult;
+  uniform sampler2D u_texture;
+  uniform sampler2D u_projectedTexture;
+  uniform float u_bias;
+  uniform vec3 u_reverseLightDirection;
+
+  out vec4 outColor;
+
+  void main() {
+      // Normaliza a normal interpolada
       vec3 normal = normalize(v_normal);
-      vec3 surfaceToViewDirection = normalize(v_surfaceToView);
-      vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
 
-      float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-      float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
+      // Calcula a iluminação direcional
+      float light = max(dot(normal, u_reverseLightDirection), 0.0);
 
-      vec4 diffuseMapColor = texture(diffuseMap, v_texcoord);
-      vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * v_color.rgb;
-      float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
+      // Calcula as coordenadas projetadas
+      vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
+      float currentDepth = projectedTexcoord.z + u_bias;
 
-      outColor = vec4(
-        emissive +
-        ambient * u_ambientLight +
-        effectiveDiffuse * fakeLight +
-        specular * pow(specularLight, shininess),
-        effectiveOpacity);
-    }
+      // Verifica se a posição projetada está dentro do intervalo
+      bool inRange = projectedTexcoord.x >= 0.0 && projectedTexcoord.x <= 1.0 &&
+                    projectedTexcoord.y >= 0.0 && projectedTexcoord.y <= 1.0;
+
+      // Obtém a profundidade projetada
+      float projectedDepth = texture(u_projectedTexture, projectedTexcoord.xy).r;
+      float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
+
+      // Calcula a cor da textura e aplica as multiplicações de cor e iluminação
+      vec4 texColor = texture(u_texture, v_texcoord) * u_colorMult;
+      outColor = vec4(texColor.rgb * light * shadowLight, texColor.a);
+  }
+  `;
+
+  const colorVSshadow = `#version 300 es
+  in vec4 a_position;
+
+  uniform mat4 u_projection;
+  uniform mat4 u_view;
+  uniform mat4 u_world;
+
+  void main() {
+    // Multiply the position by the matrices.
+    gl_Position = u_projection * u_view * u_world * a_position;
+  }
+  `;
+
+  const colorFSshadow = `#version 300 es
+  precision highp float;
+
+  uniform vec4 u_color;
+
+  out vec4 outColor;
+
+  void main() {
+    outColor = u_color;
+  }
   `;
 
   // Compilação dos shaders e Configuração dos Shaders:
+  const programOptions = {
+    attribLocations: {
+      'a_position': 0,
+      'a_normal':   1,
+      'a_texcoord': 2,
+      'a_color':    3,
+    },
+  };
+  const textureProgramInfo = twgl.createProgramInfo(gl, [vs, fs], programOptions);
+  const colorProgramInfo = twgl.createProgramInfo(gl, [colorVS, colorFS], programOptions);
   const meshProgramInfo = twgl.createProgramInfo(gl, [vs, fs]);
+  // cubo de linhas brancas
+  const cubeLinesBufferInfo = twgl.createBufferInfoFromArrays(gl, {
+    position: [
+      -1, -1, -1,
+       1, -1, -1,
+      -1,  1, -1,
+       1,  1, -1,
+      -1, -1,  1,
+       1, -1,  1,
+      -1,  1,  1,
+       1,  1,  1,
+    ],
+    indices: [
+      0, 1,
+      1, 3,
+      3, 2,
+      2, 0,
+
+      4, 5,
+      5, 7,
+      7, 6,
+      6, 4,
+
+      0, 4,
+      1, 5,
+      3, 7,
+      2, 6,
+    ],
+  });
+  const cubeLinesVAO = twgl.createVAOFromBufferInfo(
+      gl, colorProgramInfo, cubeLinesBufferInfo);
 
   // Carregamento do OBJ e MTL:
   const objHref = 'assets/MountainRocks-0.obj';
@@ -131,9 +290,40 @@ async function main() {
       zombieDistance: parseInt(document.getElementById("zombieDistance").value),
     };
   }
+  const settings = {
+    cameraX: 6,
+    cameraY: 12,
+    posX: 2.5,
+    posY: 5,
+    posZ: 7,
+    targetX: 3.5,
+    targetY: 0,
+    targetZ: 3.5,
+    projWidth: 10,
+    projHeight: 10,
+    perspective: false,
+    fieldOfView: 120,
+    bias: -0.006,
+  };
 
   // Função para gerar um novo cenário
   async function generateNewScenario() {
+    webglLessonsUI.setupUI(document.querySelector('#ui'), settings, [
+      { type: 'slider', key: 'cameraX', min: -10, max: 10, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'cameraY', min: 1, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'posX', min: -10, max: 10, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'posY', min: 1, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'posZ', min: 1, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'targetX', min: -10, max: 10, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'targetY', min: 0, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'targetZ', min: -10, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'projWidth', min: 0, max: 100, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'projHeight', min: 0, max: 100, change: render, precision: 2, step: 0.001 },
+      { type: 'checkbox', key: 'perspective', change: render },
+      { type: 'slider', key: 'fieldOfView', min: 1, max: 179, change: render },
+      { type: 'slider', key: 'bias', min: -0.01, max: 0.00001, change: render, precision: 4, step: 0.0001 },
+    ]);  
+
     const {
       numWindmills, windmillsDistance,
       numSkeleton_Arrow, Skeleton_ArrowDistance,
@@ -175,6 +365,28 @@ async function main() {
     const planesParts = await loadObj(gl, baseHref, meshProgramInfo, planesHref);
     const zombieParts = await loadObj(gl, baseHref, meshProgramInfo, zombieHref);
 
+    function drawScene(
+      projectionMatrix,
+      cameraMatrix,
+      textureMatrix,
+      lightWorldMatrix,
+      programInfo) {
+    // Make a view matrix from the camera matrix.
+    const viewMatrix = m4.inverse(cameraMatrix);
+
+    gl.useProgram(programInfo.program);
+
+    // set uniforms that are the same for both the sphere and plane
+    // note: any values with no corresponding uniform in the shader
+    // are ignored.
+    twgl.setUniforms(programInfo, {
+      u_view: viewMatrix,
+      u_projection: projectionMatrix,
+      u_bias: settings.bias,
+      u_textureMatrix: textureMatrix,
+      u_projectedTexture: depthTexture,
+      u_reverseLightDirection: lightWorldMatrix.slice(8, 11),
+    });}
     // Renderização da Cena
     function render(time) {
       time *= 0.001; // Converte para segundos
@@ -223,6 +435,8 @@ async function main() {
           twgl.setUniforms(meshProgramInfo, { u_world }, material);
           twgl.drawBufferInfo(gl, bufferInfo);
         }
+      
+      
       }
       
       // Render Skeleton_Arrow
@@ -257,7 +471,7 @@ async function main() {
 
         for (const { x, z } of TreesTransforms) {
           let u_world = m4.translate(m4.identity(), x, 0, z);
-          u_world = m4.scale(u_world, 1, 1, 1); // Ajuste a escala se necessário
+          u_world = m4.scale(u_world, 0.5, 0.5, 0.5); // Ajuste a escala se necessário
 
           twgl.setUniforms(meshProgramInfo, { u_world }, material);
           twgl.drawBufferInfo(gl, bufferInfo);
@@ -288,6 +502,7 @@ async function main() {
           twgl.setUniforms(meshProgramInfo, { u_world }, material);
           twgl.drawBufferInfo(gl, bufferInfo);
         }
+      
       }
 
       requestAnimationFrame(render);

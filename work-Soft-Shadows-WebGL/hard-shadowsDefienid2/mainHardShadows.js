@@ -1,110 +1,3 @@
-'use strict';
-
-'use strict';
-
-const vs = `#version 300 es
-in vec4 a_position;
-in vec2 a_texcoord;
-in vec3 a_normal;
-
-uniform mat4 u_projection;
-uniform mat4 u_view;
-uniform mat4 u_world;
-uniform mat4 u_textureMatrix;
-uniform vec3 u_viewWorldPosition;
-
-out vec2 v_texcoord;
-out vec4 v_projectedTexcoord;
-out vec3 v_normal;
-out vec3 v_surfaceToView;
-
-void main() {
-    // Calcula a posição no mundo
-    vec4 worldPosition = u_world * a_position;
-    gl_Position = u_projection * u_view * worldPosition;
-
-    // Passa as coordenadas de textura para o fragment shader
-    v_texcoord = a_texcoord;
-
-    // Calcula as coordenadas projetadas para sombras
-    v_projectedTexcoord = u_textureMatrix * worldPosition;
-
-    // Calcula o vetor normal no espaço do mundo
-    v_normal = mat3(u_world) * a_normal;
-
-    // Calcula a direção da superfície para a visão
-    v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
-}
-`;
-
-const fs = `#version 300 es
-precision highp float;
-
-in vec2 v_texcoord;
-in vec4 v_projectedTexcoord;
-in vec3 v_normal;
-in vec3 v_surfaceToView;
-
-uniform vec4 u_colorMult;
-uniform sampler2D u_texture;
-uniform sampler2D u_projectedTexture;
-uniform float u_bias;
-uniform vec3 u_reverseLightDirection;
-
-out vec4 outColor;
-
-void main() {
-    // Normaliza a normal interpolada
-    vec3 normal = normalize(v_normal);
-
-    // Calcula a iluminação direcional
-    float light = max(dot(normal, u_reverseLightDirection), 0.0);
-
-    // Calcula as coordenadas projetadas
-    vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
-    float currentDepth = projectedTexcoord.z + u_bias;
-
-    // Verifica se a posição projetada está dentro do intervalo
-    bool inRange = projectedTexcoord.x >= 0.0 && projectedTexcoord.x <= 1.0 &&
-                   projectedTexcoord.y >= 0.0 && projectedTexcoord.y <= 1.0;
-
-    // Obtém a profundidade projetada
-    float projectedDepth = texture(u_projectedTexture, projectedTexcoord.xy).r;
-    float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
-
-    // Calcula a cor da textura e aplica as multiplicações de cor e iluminação
-    vec4 texColor = texture(u_texture, v_texcoord) * u_colorMult;
-    outColor = vec4(texColor.rgb * light * shadowLight, texColor.a);
-}
-`;
-
-const colorVS = `#version 300 es
-in vec4 a_position;
-
-uniform mat4 u_projection;
-uniform mat4 u_view;
-uniform mat4 u_world;
-
-void main() {
-  // Multiply the position by the matrices.
-  gl_Position = u_projection * u_view * u_world * a_position;
-}
-`;
-
-const colorFS = `#version 300 es
-precision highp float;
-
-uniform vec4 u_color;
-
-out vec4 outColor;
-
-void main() {
-  outColor = u_color;
-}
-`;
-
-
-
 async function main() {
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
@@ -187,125 +80,14 @@ async function main() {
   });
   const cubeLinesVAO = twgl.createVAOFromBufferInfo(
       gl, colorProgramInfo, cubeLinesBufferInfo);
-
-  // URL do arquivo OBJ que contém o modelo 3D.
-  const objHref = 'assets/windmill.obj';  
-
-  // Faz uma requisição HTTP para buscar o arquivo OBJ.
+  
+  // Carregamento do OBJ e MTL:
+  const objHref = 'assets/MountainRocks-0.obj';
   const response = await fetch(objHref);
-
-  // Converte a resposta em texto (conteúdo do arquivo OBJ).
   const text = await response.text();
-
-  // Analisa o texto OBJ para extrair a geometria do modelo.
   const obj = parseOBJ(text);
-
-  // Cria uma URL base a partir da localização do arquivo OBJ. 
-  // Isso facilita a localização de materiais associados.
   const baseHref = new URL(objHref, window.location.href);
 
-  // Busca todos os arquivos de material (MTL) listados no OBJ e converte o conteúdo em texto.
-  const matTexts = await Promise.all(obj.materialLibs.map(async filename => {
-    const matHref = new URL(filename, baseHref).href;
-    const response = await fetch(matHref);
-    return await response.text();
-  }));
-
-  // Analisa os textos dos arquivos MTL para extrair as definições dos materiais.
-  const materials = parseMTL(matTexts.join('\n'));
-
-  // Define texturas padrão, como uma textura branca e uma textura normal padrão.
-  const textures = {
-    defaultWhite: twgl.createTexture(gl, {src: [255, 255, 255, 255]})
-  };
-
-  // Carrega texturas para cada material que faz referência a um mapa de textura.
-  for (const material of Object.values(materials)) {
-    Object.entries(material)
-      .filter(([key]) => key.endsWith('Map')) // Filtra apenas propriedades que terminam com 'Map' (ex: diffuseMap).
-      .forEach(([key, filename]) => {
-        let texture = textures[filename];
-        if (!texture) {
-          // Se a textura não foi carregada anteriormente, faz o download e cria a textura.
-          const textureHref = new URL(filename, baseHref).href;
-          texture = twgl.createTexture(gl, {src: textureHref, flipY: true});
-          textures[filename] = texture;
-        }
-        // Substitui o nome do arquivo pelo objeto de textura.
-        material[key] = texture;
-      });
-  }
-
-  // Hack para ajustar os materiais de forma que possamos visualizar o mapa especular.
-  Object.values(materials).forEach(m => {
-    m.shininess = 25; // Ajusta o brilho.
-    m.specular = [3, 2, 1]; // Define a cor especular.
-  });
-
-  // Material padrão usado caso algum objeto não tenha material associado.
-  const defaultMaterial = {
-    diffuse: [1, 1, 1],
-    diffuseMap: textures.defaultWhite,
-    ambient: [0, 0, 0],
-    specular: [1, 1, 1],
-    specularMap: textures.defaultWhite,
-    shininess: 400,
-    opacity: 1,
-  };
-
-  // Mapeia as geometrias do OBJ em partes renderizáveis.
-  const parts = obj.geometries.map(({material, data}) => {
-    // `data` contém arrays nomeados como 'position', 'texcoord', 'normal', etc.
-    // Como os nomes dos arrays correspondem aos atributos do shader de vértice,
-    // podemos passá-los diretamente para `createBufferInfoFromArrays`.
-
-    if (data.color) {
-      if (data.position.length === data.color.length) {
-        // Ajusta o número de componentes se os dados de cor tiverem 3 componentes (RGB).
-        data.color = { numComponents: 3, data: data.color };
-      }
-    } else {
-      // Se não houver cores de vértice, use uma cor constante (branco).
-      data.color = { value: [1, 1, 1, 1] };
-    }
-
-    // Gera tangentes se tivermos as coordenadas de textura e normais.
-    if (data.texcoord && data.normal) {
-      data.tangent = generateTangents(data.position, data.texcoord);
-    } else {
-      // Caso contrário, define tangentes padrão.
-      data.tangent = { value: [1, 0, 0] };
-    }
-
-    if (!data.texcoord) {
-      // Se não houver coordenadas de textura, usa valores padrão.
-      data.texcoord = { value: [0, 0] };
-    }
-
-    if (!data.normal) {
-      // Se não houver normais, define uma normal padrão.
-      data.normal = { value: [0, 0, 1] };
-    }
-
-    // Cria buffers para cada array de dados (posição, normal, etc.).
-    const bufferInfo = twgl.createBufferInfoFromArrays(gl, data);
-
-    // Cria um VAO (Vertex Array Object) a partir das informações do buffer e do programa de shader.
-    const windmillVAO = twgl.createVAOFromBufferInfo(gl, textureProgramInfo, bufferInfo);
-
-    // Retorna um objeto contendo o material, as informações do buffer, e o VAO para renderização.
-    return {
-      material: {
-        ...defaultMaterial, // Começa com o material padrão.
-        ...materials[material], // Sobrescreve com as propriedades do material do OBJ, se houver.
-      },
-      bufferInfo,
-      windmillVAO,
-    };
-  });
-
-      
-  
 
   // image texture Board
   const imageboardTexture = gl.createTexture();
@@ -418,134 +200,193 @@ async function main() {
     zombieDistance: 9,
   };
 
-  webglLessonsUI.setupUI(document.querySelector('#ui'), settings, [
-    { type: 'slider',   key: 'cameraX',    min: -10, max: 10, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'cameraY',    min:   1, max: 20, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'posX',       min: -10, max: 10, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'posY',       min:   1, max: 20, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'posZ',       min:   1, max: 20, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'targetX',    min: -10, max: 10, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'targetY',    min:   0, max: 20, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'targetZ',    min: -10, max: 20, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'projWidth',  min:   0, max: 100, change: render, precision: 2, step: 0.001, },
-    { type: 'slider',   key: 'projHeight', min:   0, max: 100, change: render, precision: 2, step: 0.001, },
-    { type: 'checkbox', key: 'perspective', change: render, },
-    { type: 'slider',   key: 'fieldOfView', min:  1, max: 179, change: render, },
-    { type: 'slider',   key: 'bias',       min:  -0.01, max: 0.00001, change: render, precision: 4, step: 0.0001, },
-    { type: 'slider', key: 'numWindmills', min: 0, max: 50, change: render, precision: 0, step: 1 },
-    { type: 'slider', key: 'windmillsDistance', min: 0, max: 50, change: render, precision: 1, step: 1 },
-    { type: 'slider', key: 'numSkeleton_Arrow', min: 0, max: 50, change: render, precision: 0, step: 1 },
-    { type: 'slider', key: 'Skeleton_ArrowDistance', min: 0, max: 50, change: render, precision: 1, step: 1 },
-    { type: 'slider', key: 'numSkeleton_Warrior', min: 0, max: 50, change: render, precision: 0, step: 1 },
-    { type: 'slider', key: 'Skeleton_WarriorDistance', min: 0, max: 50, change: render, precision: 1, step: 1 },
-    { type: 'slider', key: 'numTrees', min: 0, max: 100, change: render, precision: 0, step: 1 },
-    { type: 'slider', key: 'TreesDistance', min: 0, max: 50, change: render, precision: 1, step: 1 },
-    { type: 'slider', key: 'numPlanes', min: 0, max: 10, change: render, precision: 0, step: 1 },
-    { type: 'slider', key: 'planesDistance', min: 0, max: 50, change: render, precision: 1, step: 1 },
-    { type: 'slider', key: 'numZombie', min: 0, max: 50, change: render, precision: 0, step: 1 },
-    { type: 'slider', key: 'zombieDistance', min: 0, max: 50, change: render, precision: 1, step: 1 },
-  ]);
-
+ 
+ 
   
-  const fieldOfViewRadians = degToRad(60);
-
-  // Uniforms for each object.
-  const planeUniforms = {
-    u_colorMult: [1, 1, 1, 1],  // lightblue
-    u_color: [1, 0, 0, 1],
-    u_texture: imageboardTexture,
-    u_world: m4.translation(0, 0, 0),
-  };
-  const sphereUniforms = {
-    u_colorMult: [1, 0.5, 0.5, 1],  // pink
-    u_color: [0, 0, 1, 1],
-    u_texture: checkerboardTexture,
-    u_world: m4.translation(2, 3, 4),
-  };
-  const cubeUniforms = {
-    u_colorMult: [0.5, 1, 0.5, 1],  // lightgreen
-    u_color: [0, 0, 1, 1],
-    u_texture: checkerboardTexture,
-    u_world: m4.translation(3, 1, 0),
-  };
-  // Uniforms for the windmill object
-  /*
-  const windmillUniforms = {
-    u_colorMult: [1, 1, 1, 1],  // white
-    u_color: [1, 1, 1, 1],      // white color
-    u_texture: imageboardTexture, // Assuming you have loaded a texture for the windmill
-    u_world: m4.translation(0, 0, 0),  // Initial position of the windmill
-  };
-  8*/
-  function drawScene(
-      projectionMatrix,
-      cameraMatrix,
-      textureMatrix,
-      lightWorldMatrix,
-      programInfo) {
-    // Make a view matrix from the camera matrix.
-    const viewMatrix = m4.inverse(cameraMatrix);
-
-    gl.useProgram(programInfo.program);
-
-    // set uniforms that are the same for both the sphere and plane
-    // note: any values with no corresponding uniform in the shader
-    // are ignored.
-    twgl.setUniforms(programInfo, {
-      u_view: viewMatrix,
-      u_projection: projectionMatrix,
-      u_bias: settings.bias,
-      u_textureMatrix: textureMatrix,
-      u_projectedTexture: depthTexture,
-      u_reverseLightDirection: lightWorldMatrix.slice(8, 11),
-    });
-
-    // ------ Draw the sphere --------
-
-    // Setup all the needed attributes.
-    gl.bindVertexArray(sphereVAO);
-
-    // Set the uniforms unique to the sphere
-    twgl.setUniforms(programInfo, sphereUniforms);
-
-    // calls gl.drawArrays or gl.drawElements
-    twgl.drawBufferInfo(gl, sphereBufferInfo);
-
-    // ------ Draw the cube --------
-
-    // Setup all the needed attributes.
-    gl.bindVertexArray(cubeVAO);
-
-    // Set the uniforms unique to the cube
-    twgl.setUniforms(programInfo, cubeUniforms);
-
-    // calls gl.drawArrays or gl.drawElements
-    twgl.drawBufferInfo(gl, cubeBufferInfo);
   
-    // ------ Draw the windmill --------
-    for (const {bufferInfo, windmillVAO, material} of parts) {
-      // set the attributes for this part.
-      gl.bindVertexArray(windmillVAO);
-      // calls gl.uniform
+  // Função para gerar um novo cenário
+
+  async function generateNewScenario() {
+    webglLessonsUI.setupUI(document.querySelector('#ui'), settings, [
+      { type: 'slider', key: 'cameraX', min: -10, max: 10, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'cameraY', min: 1, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'posX', min: -10, max: 10, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'posY', min: 1, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'posZ', min: 1, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'targetX', min: -10, max: 10, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'targetY', min: 0, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'targetZ', min: -10, max: 20, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'projWidth', min: 0, max: 100, change: render, precision: 2, step: 0.001 },
+      { type: 'slider', key: 'projHeight', min: 0, max: 100, change: render, precision: 2, step: 0.001 },
+      { type: 'checkbox', key: 'perspective', change: render },
+      { type: 'slider', key: 'fieldOfView', min: 1, max: 179, change: render },
+      { type: 'slider', key: 'bias', min: -0.01, max: 0.00001, change: render, precision: 4, step: 0.0001 },
+      
+      // Substituindo controles de número por sliders
+      { type: 'slider', key: 'numWindmills', min: 0, max: 500, step: 1, change: render },
+      { type: 'slider', key: 'numSkeleton_Arrow', min: 0, max: 500, step: 1, change: render },
+      { type: 'slider', key: 'numSkeleton_Warrior', min: 0, max: 500, step: 1, change: render },
+      { type: 'slider', key: 'numTrees', min: 0, max: 500, step: 1, change: render },
+      { type: 'slider', key: 'numPlanes', min: 0, max: 100, step: 1, change: render },
+      { type: 'slider', key: 'numZombie', min: 0, max: 100, step: 1, change: render },
+    ]);
+    const {
+        numWindmills,
+        numSkeleton_Arrow,
+        numSkeleton_Warrior,
+        numTrees,
+        numPlanes,
+        numZombie
+    } = settings;  // Acessa os valores diretamente de settings
+
+    // Aqui você pode usar os valores para gerar o novo cenário
+    console.log('Novo cenário gerado com os seguintes valores:');
+    console.log('Num Windmills:', numWindmills);
+    console.log('Num Skeleton Arrow:', numSkeleton_Arrow);
+    console.log('Num Skeleton Warrior:', numSkeleton_Warrior);
+    console.log('Num Trees:', numTrees);
+    console.log('Num Planes:', numPlanes);
+    console.log('Num Zombie:', numZombie);
+
+
+    // Configurações dos WindMills
+    const windmillsTransforms = generateUniquePositions(numWindmills, { x: 500, z: 500 });
+    const windmillsHref = 'assets/windmill.obj';
+
+    // Configurações dos Skeleton_Arrow
+    const Skeleton_ArrowTransforms = generateUniquePositions(numSkeleton_Arrow, { x: 500, z: 500 });
+    const Skeleton_ArrowHref = 'assets/Skeleton_Arrow.obj';
+
+    // Configurações dos Skeleton_Warrior
+    const Skeleton_WarriorTransforms = generateUniquePositions(numSkeleton_Warrior, { x: 500, z: 500 });
+    const Skeleton_WarriorHref = 'assets/Skeleton_Warrior.obj';
+
+    // Configurações dos Trees
+    const TreesTransforms = generateUniquePositions(numTrees, { x: 500, z: 500 });
+    const TreesHref = 'assets/tree08.obj';
+
+    // Configurações dos Planes
+    const planesTransforms = generateUniquePositions(numPlanes, { x: 500, z: 500 });
+    const planesHref = 'assets/MountainRocks-0.obj';
+
+    // Configurações dos Zombies
+    const zombieTransforms = generateUniquePositions(numZombie, { x: 500, z: 500 });
+    const zombieHref = 'assets/Zed_1.obj';
+
+    
+    // Carregando modelos 3D no formato OBJ e criando os objetos necessários para renderizá-los usando TWGL (Tiny WebGL)
+    const windmillsParts = await loadObj(gl, baseHref, textureProgramInfo, windmillsHref);
+    const Skeleton_ArrowParts = await loadObj(gl, baseHref, textureProgramInfo, Skeleton_ArrowHref);
+    const Skeleton_WarriorParts = await loadObj(gl, baseHref, textureProgramInfo, Skeleton_WarriorHref);
+    const TreesParts = await loadObj(gl, baseHref, textureProgramInfo, TreesHref);
+    const planesParts = await loadObj(gl, baseHref, textureProgramInfo, planesHref);
+    const zombieParts = await loadObj(gl, baseHref, textureProgramInfo, zombieHref);
+   
+    const fieldOfViewRadians = degToRad(60);
+
+    // Uniforms for each object.
+    const planeUniforms = {
+      u_colorMult: [1, 1, 1, 1],  // lightblue
+      u_color: [1, 0, 0, 1],
+      u_texture: imageboardTexture,
+      u_world: m4.translation(0, 0, 0),
+    };
+    const sphereUniforms = {
+      u_colorMult: [1, 0.5, 0.5, 1],  // pink
+      u_color: [0, 0, 1, 1],
+      u_texture: checkerboardTexture,
+      u_world: m4.translation(2, 3, 4),
+    };
+    const cubeUniforms = {
+      u_colorMult: [0.5, 1, 0.5, 1],  // lightgreen
+      u_color: [0, 0, 1, 1],
+      u_texture: checkerboardTexture,
+      u_world: m4.translation(3, 1, 0),
+    };
+
+    function drawScene(
+        projectionMatrix,
+        cameraMatrix,
+        textureMatrix,
+        lightWorldMatrix,
+        programInfo) {
+      // Make a view matrix from the camera matrix.
+      const viewMatrix = m4.inverse(cameraMatrix);
+
+      gl.useProgram(programInfo.program);
+
+      // set uniforms that are the same for both the sphere and plane
+      // note: any values with no corresponding uniform in the shader
+      // are ignored.
       twgl.setUniforms(programInfo, {
-        u_world: m4.translation(4, 0, 0),
-      }, material);
+        u_view: viewMatrix,
+        u_projection: projectionMatrix,
+        u_bias: settings.bias,
+        u_textureMatrix: textureMatrix,
+        u_projectedTexture: depthTexture,
+        u_reverseLightDirection: lightWorldMatrix.slice(8, 11),
+      });
+
+      // ------ Draw the sphere --------
+
+      // Setup all the needed attributes.
+      gl.bindVertexArray(sphereVAO);
+
+      // Set the uniforms unique to the sphere
+      twgl.setUniforms(programInfo, sphereUniforms);
+
       // calls gl.drawArrays or gl.drawElements
-      twgl.drawBufferInfo(gl, bufferInfo);
+      twgl.drawBufferInfo(gl, sphereBufferInfo);
+
+      // ------ Draw the cube --------
+
+      // Setup all the needed attributes.
+      gl.bindVertexArray(cubeVAO);
+
+      // Set the uniforms unique to the cube
+      twgl.setUniforms(programInfo, cubeUniforms);
+
+      // calls gl.drawArrays or gl.drawElements
+      twgl.drawBufferInfo(gl, cubeBufferInfo);
+
+      // ------ Draw the windmill --------
+      /*
+      for (const {bufferInfo, vao, material} of windmillsParts) {
+        // set the attributes for this part.
+        gl.bindVertexArray(vao);
+        // calls gl.uniform
+        for (const { x, z } of windmillsTransforms) {
+          let u_world = m4.translate(m4.identity(), x, 0, z);
+          u_world = m4.scale(u_world, 1, 1, 1); // Ajuste a escala se necessário
+
+          twgl.setUniforms(programInfo, { u_world }, material);
+          twgl.drawBufferInfo(gl, bufferInfo);
+        }
+      }
+      */
+      for (const {bufferInfo, vao, material} of windmillsParts) {
+        // set the attributes for this part.
+        gl.bindVertexArray(vao);
+        // calls gl.uniform
+        twgl.setUniforms(programInfo, {
+          u_world: m4.translation(4, 0, 0),
+        }, material);
+        // calls gl.drawArrays or gl.drawElements
+        twgl.drawBufferInfo(gl, bufferInfo);
+      }
+      
+      // ------ Draw the plane --------
+
+      // Setup all the needed attributes.
+      gl.bindVertexArray(planeVAO);
+
+      // Set the uniforms unique to the cube
+      twgl.setUniforms(programInfo, planeUniforms);
+
+      // calls gl.drawArrays or gl.drawElements
+      twgl.drawBufferInfo(gl, planeBufferInfo);
     }
-    // ------ Draw the plane --------
-
-    // Setup all the needed attributes.
-    gl.bindVertexArray(planeVAO);
-
-    // Set the uniforms unique to the cube
-    twgl.setUniforms(programInfo, planeUniforms);
-
-    // calls gl.drawArrays or gl.drawElements
-    twgl.drawBufferInfo(gl, planeBufferInfo);
-  }
-
-  // Draw the scene.
+    // Draw the scene.
   function render() {
     twgl.resizeCanvasToDisplaySize(gl.canvas);
 
@@ -566,11 +407,11 @@ async function main() {
             10)   // far
         : m4.orthographic(
             -settings.projWidth / 2,   // left
-             settings.projWidth / 2,   // right
+            settings.projWidth / 2,   // right
             -settings.projHeight / 2,  // bottom
-             settings.projHeight / 2,  // top
-             0.5,                      // near
-             10);                      // far
+            settings.projHeight / 2,  // top
+            0.5,                      // near
+            10);                      // far
 
     // draw to the depth texture
     gl.bindFramebuffer(gl.FRAMEBUFFER, depthFramebuffer);
@@ -611,8 +452,6 @@ async function main() {
     const target = [0, 0, 0];
     const up = [0, 1, 0];
     const cameraMatrix = m4.lookAt(cameraPosition, target, up);
-    
-    
 
     drawScene(
         projectionMatrix,
@@ -646,29 +485,21 @@ async function main() {
 
       // calls gl.drawArrays or gl.drawElements
       twgl.drawBufferInfo(gl, cubeLinesBufferInfo, gl.LINES);
+      
     }
-    // Draw the scene with textures
-    for (const { bufferInfo, vao, material } of parts) {
-      gl.bindVertexArray(vao); // Set the attributes for this part
-
-      const mat2 = m4.multiply(
-        lightWorldMatrix, m4.inverse(lightProjectionMatrix));
-
-      // Set uniforms for the material and world matrix
-      twgl.setUniforms(textureProgramInfo, {
-        u_world: textureMatrix,
-        u_view: m4.inverse(cameraMatrix),
-        u_projection: projectionMatrix,
-        u_lightWorldPos: [settings.posX, settings.posY, settings.posZ],
-        u_viewWorldPosition: mat2,
-      }, material);
-
-      // Draw the current part
-      twgl.drawBufferInfo(gl, bufferInfo);
-    }
+    requestAnimationFrame(render);
   }
-  render();
+    
+  requestAnimationFrame(render);
 }
+
+  // Adiciona o evento ao botão para gerar novo cenário
+  document.getElementById("generateButton").addEventListener("click", generateNewScenario);
+
+  // Chama a geração de cenário inicial
+  generateNewScenario();
+}
+
 
 main();
 

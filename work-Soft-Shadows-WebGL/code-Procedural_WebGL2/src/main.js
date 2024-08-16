@@ -1,3 +1,4 @@
+/*
 'use strict';
 
 async function main() {
@@ -77,6 +78,7 @@ async function main() {
         effectiveOpacity);
     }
   `;
+  */
 
   // Compilação dos shaders e Configuração dos Shaders:
   const meshProgramInfo = twgl.createProgramInfo(gl, [vs, fs]);
@@ -131,7 +133,7 @@ async function main() {
       zombieDistance: parseInt(document.getElementById("zombieDistance").value),
     };
   }
-
+  console.log("oi")
   // Função para gerar um novo cenário
   async function generateNewScenario() {
     const {
@@ -166,6 +168,9 @@ async function main() {
     // Configurações dos Zombies
     const zombieTransforms = await generateUniquePositions(numZombie, { x: 500, z: 500 }, zombieDistance);
     const zombieHref = 'assets/Zed_1.obj';
+
+    
+    console.log('windmillsHref:', windmillsHref); // Adicione isso para verificar o valor
 
     // Carregando modelos 3D no formato OBJ e criando os objetos necessários para renderizá-los usando TWGL (Tiny WebGL)
     const windmillsParts = await loadObj(gl, baseHref, meshProgramInfo, windmillsHref);
