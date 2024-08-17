@@ -144,13 +144,12 @@ async function loadObj(gl, baseHref, meshProgramInfo, objectHref) {
 }
 
 // Função para gerar posições únicas usando amostragem de disco de Poisson
-function generateUniquePositions(numPositions, area) {
-  const  minDistance = 2
+function generateUniquePositions(numPositions, area, minDistance) {
   const positions = [];
   const gridSize = minDistance / Math.sqrt(2); // Tamanho da célula da grade
   const grid = new Map(); // Para verificar rapidamente se uma célula da grade já foi usada
-  const cells = Math.ceil(area.x / gridSize) * Math.ceil(area.z / gridSize);
-  
+  const minDistSq = minDistance * minDistance;
+
   function getGridCell(x, z) {
     return Math.floor(x / gridSize) + ',' + Math.floor(z / gridSize);
   }
@@ -158,15 +157,18 @@ function generateUniquePositions(numPositions, area) {
   function addPosition(x, z) {
     positions.push({ x, z });
     const cell = getGridCell(x, z);
-    grid.set(cell, true);
+    grid.set(cell, { x, z });
   }
 
-  // Função auxiliar para verificar se uma nova posição é válida
   function isValid(x, z) {
     const cell = getGridCell(x, z);
-    if (grid.has(cell)) return false;
+    if (grid.has(cell)) {
+      const pos = grid.get(cell);
+      const dx = x - pos.x;
+      const dz = z - pos.z;
+      if (dx * dx + dz * dz < minDistSq) return false;
+    }
 
-    const minDistSq = minDistance * minDistance;
     for (const pos of positions) {
       const dx = x - pos.x;
       const dz = z - pos.z;
@@ -178,8 +180,10 @@ function generateUniquePositions(numPositions, area) {
   // Início da amostragem
   let x, z, tries = 0;
   while (positions.length < numPositions && tries < numPositions * 30) {
+    // Gera coordenadas aleatórias dentro da área total
     x = Math.random() * area.x;
     z = Math.random() * area.z;
+    
     if (isValid(x, z)) {
       addPosition(x, z);
     } else {
@@ -188,4 +192,15 @@ function generateUniquePositions(numPositions, area) {
   }
 
   return positions;
+}
+
+function drawDebugMarkers() {
+  gl.useProgram(debugProgram); // Certifique-se de que o shader de debug está configurado
+  gl.bindVertexArray(debugVAO);
+
+  for (const { x, z } of windmillsTransforms) {
+      const position = [x, 0, z];
+      twgl.setUniforms(debugProgramInfo, { u_position: position });
+      twgl.drawBufferInfo(gl, debugBufferInfo, gl.POINTS);
+  }
 }

@@ -353,28 +353,28 @@ async function main() {
 
 
     // Configurações dos WindMills
-    const windmillsTransforms = generateUniquePositions(numWindmills, { x: 500, z: 500 });
+    const windmillsTransforms = generateUniquePositions(numWindmills, { x: 200, z: 200 }, 20);
     const windmillsHref = 'assets/windmill.obj';
     console.log("Configurações dos WindMills:", windmillsTransforms);
 
     // Configurações dos Skeleton_Arrow
-    const Skeleton_ArrowTransforms = generateUniquePositions(numSkeleton_Arrow, { x: 20, z: 20 });
+    const Skeleton_ArrowTransforms = generateUniquePositions(numSkeleton_Arrow, { x: 20, z: 20 }, 2);
     const Skeleton_ArrowHref = 'assets/Skeleton_Arrow.obj';
 
     // Configurações dos Skeleton_Warrior
-    const Skeleton_WarriorTransforms = generateUniquePositions(numSkeleton_Warrior, { x: 500, z: 500 });
+    const Skeleton_WarriorTransforms = generateUniquePositions(numSkeleton_Warrior, { x: 20, z: 20 },2);
     const Skeleton_WarriorHref = 'assets/Skeleton_Warrior.obj';
 
     // Configurações dos Trees
-    const TreesTransforms = generateUniquePositions(numTrees, { x: 500, z: 500 });
+    const TreesTransforms = generateUniquePositions(numTrees, { x: 20, z: 20 }, 50);
     const TreesHref = 'assets/tree08.obj';
 
     // Configurações dos Planes
-    const planesTransforms = generateUniquePositions(numPlanes, { x: 500, z: 500 });
+    const planesTransforms = generateUniquePositions(numPlanes, { x: 20, z: 20 }, 50);
     const planesHref = 'assets/MountainRocks-0.obj';
 
     // Configurações dos Zombies
-    const zombieTransforms = generateUniquePositions(numZombie, { x: 500, z: 500 });
+    const zombieTransforms = generateUniquePositions(numZombie, { x: 20, z: 20 }, 30);
     const zombieHref = 'assets/Zed_1.obj';
 
     
@@ -468,14 +468,27 @@ async function main() {
         }
       }
       */
-      // ------ Draw the windmill --------
+       // ------ Draw the ArrowParts --------
+       for (const {bufferInfo, vao, material} of windmillsParts) {
+        // set the attributes for this part.
+        gl.bindVertexArray(vao);
+        // calls gl.uniform
+        for (const { x, z } of windmillsTransforms) {
+          twgl.setUniforms(programInfo, {
+            u_world: m4.translation(x, 0, z),
+          }, material);
+          // calls gl.drawArrays or gl.drawElements
+          twgl.drawBufferInfo(gl, bufferInfo);
+        }
+      }
+      // ------ Draw the ArrowParts --------
       for (const {bufferInfo, vao, material} of Skeleton_ArrowParts) {
         // set the attributes for this part.
         gl.bindVertexArray(vao);
         // calls gl.uniform
         for (const { x, z } of Skeleton_ArrowTransforms) {
           twgl.setUniforms(programInfo, {
-            u_world: m4.translation(x, z, z),
+            u_world: m4.translation(x, 0, z),
           }, material);
           // calls gl.drawArrays or gl.drawElements
           twgl.drawBufferInfo(gl, bufferInfo);
@@ -579,21 +592,27 @@ async function main() {
       // scale the cube in Z so it's really long
       // to represent the texture is being projected to
       // infinity
+      
+      
       const mat = m4.multiply(
           lightWorldMatrix, m4.inverse(lightProjectionMatrix));
+      
+      // Aplica a escala ao cubo
+      const scaledMat = m4.scale(mat, 10, 10, 10);
 
       // Set the uniforms we just computed
       twgl.setUniforms(colorProgramInfo, {
         u_color: [1, 1, 1, 1],
         u_view: viewMatrix,
         u_projection: projectionMatrix,
-        u_world: mat,
+        u_world: scaledMat,
       });
 
       // calls gl.drawArrays or gl.drawElements
       twgl.drawBufferInfo(gl, cubeLinesBufferInfo, gl.LINES);
       
     }
+    drawDebugMarkers();
     requestAnimationFrame(render);
   }
     
