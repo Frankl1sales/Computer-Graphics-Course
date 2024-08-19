@@ -1,7 +1,20 @@
-\section{Contexto e Motivação}
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{Análise do Algoritmo Metropolis Light Transport: Avanços na Renderização e Desafios na Iluminação}
+\author{Franklin Sales de Oliveira}
+\date{August 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
 
 Apesar dos avanços significativos na resolução do problema de transporte de luz, muitos métodos atuais são otimizados para um conjunto limitado de cenários. Algoritmos convencionais frequentemente enfrentam dificuldades quando lidam com iluminação indireta intensa ou superfícies refletoras não-difusas, exigindo grandes recursos computacionais. Portanto, é crucial desenvolver técnicas que sejam mais robustas e que funcionem dentro de limites de tempo aceitáveis para modelos reais, garantindo imagens fisicamente plausíveis e visualmente atraentes.
 
 Métodos de Monte Carlo, conhecidos por sua generalidade e simplicidade, são uma abordagem promissora. Algoritmos imparciais, que fornecem a resposta correta em média, são particularmente desejáveis, pois qualquer erro aparece como variações aleatórias, permitindo a estimativa do erro através da variância da amostra. Em contraste, algoritmos tendenciosos podem resultar em erros visuais como descontinuidades e borrões, sendo difícil quantificar e limitar o viés.
 
 O primeiro algoritmo imparcial de transporte de luz com Monte Carlo foi introduzido por Kajiya, baseado em trabalhos anteriores de Cook et al. e Whitted. Desde então, várias refinamentos foram propostos, muitas vezes inspirados pela literatura de transporte de nêutrons e transferência de calor radiativo, áreas com uma longa tradição na resolução de problemas semelhantes.
+\end{document}
+
