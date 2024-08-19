@@ -1,36 +1,38 @@
 'use strict';
 
 const vs = `#version 300 es
-in vec4 a_position;
-in vec2 a_texcoord;
-in vec3 a_normal;
+in vec4 a_position;       // A posição do vértice no espaço do modelo, recebida como um atributo
+in vec2 a_texcoord;       // As coordenadas de textura para o vértice, recebidas como um atributo
+in vec3 a_normal;         // O vetor normal para o vértice, recebido como um atributo
 
-uniform mat4 u_projection;
-uniform mat4 u_view;
-uniform mat4 u_world;
-uniform mat4 u_textureMatrix;
-uniform vec3 u_viewWorldPosition;
+uniform mat4 u_projection; // Matriz de projeção para transformar a posição do espaço do câmera para o espaço de tela
+uniform mat4 u_view;       // Matriz de visualização para transformar a posição do espaço do mundo para o espaço do câmera
+uniform mat4 u_world;      // Matriz de modelo que transforma a posição do espaço do modelo para o espaço do mundo
+uniform mat4 u_textureMatrix; // Matriz para transformar a posição do espaço do mundo para o espaço da textura (para sombras)
+uniform vec3 u_viewWorldPosition; // Posição da câmera no espaço do mundo
 
-out vec2 v_texcoord;
-out vec4 v_projectedTexcoord;
-out vec3 v_normal;
-out vec3 v_surfaceToView;
+out vec2 v_texcoord;       // Variável de saída para passar as coordenadas de textura para o fragment shader
+out vec4 v_projectedTexcoord; // Variável de saída para passar as coordenadas projetadas para o fragment shader
+out vec3 v_normal;         // Variável de saída para passar o vetor normal para o fragment shader
+out vec3 v_surfaceToView;  // Variável de saída para passar o vetor da superfície até a visão para o fragment shader
 
 void main() {
-    // Calcula a posição no mundo
+    // Calcula a posição do vértice no espaço do mundo usando a matriz de modelo
     vec4 worldPosition = u_world * a_position;
+
+    // Calcula a posição final do vértice no espaço de tela usando as matrizes de projeção e visualização
     gl_Position = u_projection * u_view * worldPosition;
 
-    // Passa as coordenadas de textura para o fragment shader
+    // Passa as coordenadas de textura diretamente para o fragment shader
     v_texcoord = a_texcoord;
 
-    // Calcula as coordenadas projetadas para sombras
+    // Calcula as coordenadas projetadas para sombras usando a matriz de textura
     v_projectedTexcoord = u_textureMatrix * worldPosition;
 
-    // Calcula o vetor normal no espaço do mundo
+    // Calcula o vetor normal no espaço do mundo usando a matriz de modelo (sem translação)
     v_normal = mat3(u_world) * a_normal;
 
-    // Calcula a direção da superfície para a visão
+    // Calcula o vetor da superfície até a visão (câmera) para uso na iluminação
     v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
 }
 `;
@@ -38,42 +40,55 @@ void main() {
 const fs = `#version 300 es
 precision highp float;
 
-in vec2 v_texcoord;
-in vec4 v_projectedTexcoord;
-in vec3 v_normal;
-in vec3 v_surfaceToView;
+in vec2 v_texcoord;            // Coordenadas de textura interpoladas do vertex shader
+in vec4 v_projectedTexcoord;   // Coordenadas projetadas interpoladas do vertex shader
+in vec3 v_normal;              // Vetor normal interpolado do vertex shader
+in vec3 v_surfaceToView;       // Vetor da superfície até a visão interpolado do vertex shader
 
-uniform vec4 u_colorMult;
-uniform sampler2D u_texture;
-uniform sampler2D u_projectedTexture;
-uniform float u_bias;
-uniform vec3 u_reverseLightDirection;
+uniform vec4 u_colorMult;      // Multiplicador de cor aplicado à textura
+uniform sampler2D u_texture;   // Textura base do fragmento
+uniform sampler2D u_projectedTexture; // Textura de profundidade para sombras
+uniform float u_bias;          // Bias para evitar artefatos de sombras
+uniform float u_penumbralSize; // Tamanho da penumbra
+uniform vec3 u_reverseLightDirection; // Direção da luz reversa (iluminação direcional)
 
-out vec4 outColor;
+out vec4 outColor;             // Cor final do fragmento
+
+// Valor fixo para o tamanho da penumbra
+const float PENUMBRA_SIZE = 0.06; // Ajuste conforme necessário
 
 void main() {
-    // Normaliza a normal interpolada
+    // Normaliza o vetor normal interpolado
     vec3 normal = normalize(v_normal);
 
-    // Calcula a iluminação direcional
+    // Calcula a iluminação direcional com base na direção da luz e o vetor normal
     float light = max(dot(normal, u_reverseLightDirection), 0.0);
 
-    // Calcula as coordenadas projetadas
+    // Calcula as coordenadas projetadas para a textura de sombras
     vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
-    float currentDepth = projectedTexcoord.z + u_bias;
+    float currentDepth = projectedTexcoord.z + u_bias; // Profundidade atual com bias para suavização
 
-    // Verifica se a posição projetada está dentro do intervalo
+    // Verifica se a coordenada projetada está dentro do intervalo da textura
     bool inRange = projectedTexcoord.x >= 0.0 && projectedTexcoord.x <= 1.0 &&
                    projectedTexcoord.y >= 0.0 && projectedTexcoord.y <= 1.0;
 
-    // Obtém a profundidade projetada
+    // Obtém a profundidade projetada da textura de sombras
     float projectedDepth = texture(u_projectedTexture, projectedTexcoord.xy).r;
-    float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
 
-    // Calcula a cor da textura e aplica as multiplicações de cor e iluminação
+    // Calcula a diferença de profundidade
+    float depthDifference = projectedDepth - currentDepth;
+
+    // Calcula a umbra e penumbra
+    float penumbra = smoothstep(0.0, PENUMBRA_SIZE, depthDifference);
+    float shadow = (inRange) ? (depthDifference < 0.0 ? 0.0 : penumbra) : 0.6;
+
+    // Obtém a cor da textura base e aplica o multiplicador de cor
     vec4 texColor = texture(u_texture, v_texcoord) * u_colorMult;
-    outColor = vec4(texColor.rgb * light * shadowLight, texColor.a);
+
+    // Aplica a iluminação e a intensidade da sombra à cor final
+    outColor = vec4(texColor.rgb * light * shadow, texColor.a);
 }
+
 `;
 
 const colorVS = `#version 300 es
@@ -288,7 +303,7 @@ async function main() {
     projHeight: 10,
     perspective: false,
     fieldOfView: 120,
-    bias: -0.006,
+    bias: -0.066,
     numWindmills: 5,
     windmillsDistance: 15,
     numSkeleton_Arrow: 3,
@@ -353,7 +368,7 @@ async function main() {
 
 
     // Configurações dos WindMills
-    const windmillsTransforms = generateUniquePositions(numWindmills, { x: 200, z: 200 }, 20);
+    const windmillsTransforms = generateUniquePositions(numWindmills, { x: 20, z: 20 }, 20);
     const windmillsHref = 'assets/windmill.obj';
     console.log("Configurações dos WindMills:", windmillsTransforms);
 
@@ -399,7 +414,7 @@ async function main() {
       u_colorMult: [1, 0.5, 0.5, 1],  // pink
       u_color: [0, 0, 1, 1],
       u_texture: checkerboardTexture,
-      u_world: m4.translation(2, 3, 4),
+      u_world: m4.translation(2, 0, 0),
     };
     const cubeUniforms = {
       u_colorMult: [0.5, 1, 0.5, 1],  // lightgreen
@@ -598,7 +613,7 @@ async function main() {
           lightWorldMatrix, m4.inverse(lightProjectionMatrix));
       
       // Aplica a escala ao cubo
-      const scaledMat = m4.scale(mat, 10, 10, 10);
+      const scaledMat = m4.scale(mat, 200, 50, 200);
 
       // Set the uniforms we just computed
       twgl.setUniforms(colorProgramInfo, {
