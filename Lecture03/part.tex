@@ -1,5 +1,8 @@
 \documentclass{article}
 \usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath} % Required for mathematical symbols
+\usepackage{amssymb} % Required for additional mathematical symbols
+\usepackage{verbatim} % Required for verbatim environments
 
 \title{Análise do Algoritmo Metropolis Light Transport: Avanços na Renderização e Desafios na Iluminação}
 \author{Franklin Sales de Oliveira}
@@ -21,7 +24,6 @@ No entanto, era surpreendentemente difícil projetar algoritmos de transporte de
 O Metropolis Light Transport (MLT) é um algoritmo proposto para amostragem de caminhos que visa melhorar a eficiência da renderização. O MLT amostra caminhos com base em sua contribuição para a imagem final, utilizando uma abordagem de caminhada aleatória que prioriza caminhos mais relevantes. O algoritmo combina conceitos do método Metropolis e da formulação do integral de caminho para transporte de luz.
 
 \section{Visão Geral do Algoritmo MLT}
-
 \subsection{O Problema da Renderização}
 
 Para criar uma imagem de uma cena, precisamos simular como a luz viaja desde as fontes de luz até a câmera. Isso envolve rastrear os caminhos da luz através da cena e calcular a quantidade de luz que atinge cada ponto da imagem. Contudo, algumas dessas trajetórias não contribuem significativamente para a imagem final, o que pode tornar o processo de renderização ineficiente.
@@ -46,9 +48,57 @@ No MLT, os caminhos são ajustados por mutações, que podem ser coisas como adi
 
 À medida que os caminhos são amostrados e aceitos, a imagem é atualizada com base nas amostras. A ideia é que, ao coletar várias amostras, a imagem final vai representar bem como a luz chega até a câmera. Regiões da imagem que recebem mais amostras vão parecer mais detalhadas, enquanto regiões com menos amostras podem parecer menos detalhadas.
 
-\subsection{Resumo Final}
+\subsection{Resultados}
 
 O MLT melhora a renderização ao focar em caminhos da luz mais relevantes e usar uma abordagem inteligente para ajustar esses caminhos. Ao fazer isso, ele tenta obter uma imagem mais precisa com menos amostras, economizando tempo de computação e evitando problemas como caminhos ineficazes ou detalhes desnecessários.
 
-\end{document}
+\subsection{Pseudocodigo}
+A seguir, apresentamos o pseudocódigo do algoritmo MLT e sua explicação em etapas:
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{pseucode.png}
+    \caption{Pseudocódigo do Algoritmo Metropolis Light Transport (MLT)}
+    \label{fig:pseudocode}
+\end{figure}
+
+\subsection{1. Inicialização}
+\begin{itemize}
+    \item \(\overline{x} \leftarrow \text{InitialPath()}\): Começa com um caminho inicial, `\(\overline{x}\)`, que pode ser gerado aleatoriamente ou por meio de uma heurística básica.
+    \item \textbf{image ← { array of zeros }}: Inicializa a imagem como uma matriz de zeros, representando uma imagem vazia onde os valores dos pixels serão atualizados.
+\end{itemize}
+
+\subsection{Iteração}
+\begin{itemize}
+    \item \textbf{for i ← 1 to N}: O algoritmo executa um número definido de iterações, `N`, para explorar diferentes caminhos.
+\end{itemize}
+
+\subsection{Mutação do Caminho}
+\begin{itemize}
+    \item \(\overline{y} \leftarrow \text{Mutate}(\overline{x})\): Gera um novo caminho `\(\overline{y}\)` a partir do caminho atual `\(\overline{x}\)` por meio de uma mutação, que pode incluir adicionar, remover ou modificar pontos no caminho.
+\end{itemize}
+
+\subsection{Probabilidade de Aceitação}
+\begin{itemize}
+    \item \textbf{a ← AcceptProb(\(\overline{y}|\overline{x}\))}: Calcula a probabilidade de aceitar o novo caminho `\(\overline{y}\)` em relação ao caminho atual `\(\overline{x}\)`. Essa probabilidade é baseada na contribuição do novo caminho para a imagem final.
+\end{itemize}
+
+\subsection{Aceitação do Novo Caminho}
+\begin{itemize}
+    \item \textbf{if Random() < a}: Gera um número aleatório e o compara com a probabilidade de aceitação `a`. Se o número aleatório for menor que `a`, o novo caminho `\(\overline{y}\)` é aceito e se torna o caminho atual `\(\overline{x}\)`. Caso contrário, o caminho atual `\(\overline{x}\)` é mantido.
+\end{itemize}
+
+\subsection{Registro da Amostra}
+\begin{itemize}
+    \item \textbf{RecordSample(image, \(\overline{x}\))}: Atualiza a imagem com base no caminho atual `\(\overline{x}\)`, ajustando os valores dos pixels correspondentes.
+\end{itemize}
+
+\subsection{Retorno da Imagem}
+\begin{itemize}
+    \item \textbf{return image}: Após todas as iterações, retorna a imagem final que representa a iluminação estimada na cena.
+\end{itemize}
+
+\section{Conclusão}
+O algoritmo Metropolis Light Transport (MLT) melhora a renderização ao focar em caminhos de luz mais relevantes e usar uma abordagem inteligente para ajustar esses caminhos. Isso permite obter uma imagem mais precisa com menos amostras, economizando tempo de computação e evitando problemas como caminhos ineficazes ou detalhes desnecessários.
+
+\end{document}
