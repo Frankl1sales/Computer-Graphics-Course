@@ -9,15 +9,46 @@
 
 \maketitle
 
-\section{Introduction}
-
+\section{Introdução}
 Embora tenham ocorrido avanços significativos na resolução do problema de transporte de luz, os autores destacam que, na época, muitos métodos eram otimizados para cenários bastante específicos. Algoritmos tradicionais frequentemente enfrentavam dificuldades com iluminação indireta intensa ou superfícies reflexivas não-difusas, o que exigia um alto custo computacional. Assim, era fundamental desenvolver técnicas mais robustas que funcionassem dentro de tempos aceitáveis para modelos reais, garantindo imagens que fossem fisicamente corretas e visualmente atraentes.
 
 Os métodos de Monte Carlo, conhecidos por sua versatilidade e simplicidade, surgiram como uma abordagem promissora. Algoritmos imparciais, que fornecem a resposta correta em média, eram especialmente úteis, pois erros aparecem como variações aleatórias, facilitando a estimativa do erro por meio da variância das amostras. Em contraste, algoritmos tendenciosos podem causar erros visuais, como descontinuidades e borrões, tornando a medição e controle do viés uma tarefa complexa.
 
-\section{Lacuna}
+\section{Lacunas em Pesquisas Anteriores}
 No entanto, era surpreendentemente difícil projetar algoritmos de transporte de luz que sejam gerais, eficientes e sem artefatos. Sob a perspectiva de Monte Carlo, um algoritmo desse tipo deve amostrar eficientemente os caminhos de transporte desde as fontes de luz até a lente. O problema era que, em alguns ambientes, muitos caminhos não contribuem significativamente para a imagem, por exemplo, porque atingem superfícies com baixa refletividade ou passam por objetos sólidos. Um exemplo seria uma sala bem iluminada ao lado de uma sala escura contendo a câmera, com uma porta ligeiramente aberta entre elas. O rastreamento de caminhos ingênuo (Naive path) seria muito ineficiente, pois teria dificuldade em gerar caminhos que passassem pela porta. Problemas semelhantes ocorrem com superfícies brilhantes, causticas e iluminação indireta forte.
 
+\section{Proposta de Solução}
 O Metropolis Light Transport (MLT) é um algoritmo proposto para amostragem de caminhos que visa melhorar a eficiência da renderização. O MLT amostra caminhos com base em sua contribuição para a imagem final, utilizando uma abordagem de caminhada aleatória que prioriza caminhos mais relevantes. O algoritmo combina conceitos do método Metropolis e da formulação do integral de caminho para transporte de luz.
+
+\section{Visão Geral do Algoritmo MLT}
+
+\subsection{O Problema da Renderização}
+
+Para criar uma imagem de uma cena, precisamos simular como a luz viaja desde as fontes de luz até a câmera. Isso envolve rastrear os caminhos da luz através da cena e calcular a quantidade de luz que atinge cada ponto da imagem. Contudo, algumas dessas trajetórias não contribuem significativamente para a imagem final, o que pode tornar o processo de renderização ineficiente.
+
+\subsection{O Conceito de Amostragem de Caminhos}
+
+O MLT é um método que visa amostrar caminhos da luz de forma mais eficiente. Em vez de simplesmente tentar todos os possíveis caminhos, o MLT utiliza uma técnica chamada "caminhada aleatória" para explorar o espaço dos caminhos de forma mais inteligente.
+
+\subsection{Caminhada Aleatória}
+
+Imagine que você está tentando encontrar o melhor caminho em um labirinto. Em vez de explorar todas as rotas possíveis, você faz mudanças graduais em seu caminho atual, ajustando-o conforme necessário, e decide se deve continuar ou voltar para o caminho anterior. No MLT, essa abordagem é usada para ajustar os caminhos da luz que estamos amostrando.
+
+\subsection{Função de Contribuição da Imagem}
+
+Cada caminho da luz tem uma contribuição diferente para a imagem final. A função de contribuição \( f \) mede essa importância. O MLT tenta amostrar mais os caminhos que têm uma contribuição maior para a imagem final. Assim, caminhos que têm pouca influência na imagem são menos amostrados, economizando tempo de computação.
+
+\subsection{Mutações de Caminhos}
+
+No MLT, os caminhos são ajustados por mutações, que podem ser coisas como adicionar, remover ou mudar partes do caminho. Cada nova versão do caminho tem uma chance de ser aceita ou rejeitada. Se um caminho é aceito, ele é usado para atualizar a imagem; se não, o caminho original é mantido.
+
+\subsection{Atualização da Imagem}
+
+À medida que os caminhos são amostrados e aceitos, a imagem é atualizada com base nas amostras. A ideia é que, ao coletar várias amostras, a imagem final vai representar bem como a luz chega até a câmera. Regiões da imagem que recebem mais amostras vão parecer mais detalhadas, enquanto regiões com menos amostras podem parecer menos detalhadas.
+
+\subsection{Resumo Final}
+
+O MLT melhora a renderização ao focar em caminhos da luz mais relevantes e usar uma abordagem inteligente para ajustar esses caminhos. Ao fazer isso, ele tenta obter uma imagem mais precisa com menos amostras, economizando tempo de computação e evitando problemas como caminhos ineficazes ou detalhes desnecessários.
+
 \end{document}
 
