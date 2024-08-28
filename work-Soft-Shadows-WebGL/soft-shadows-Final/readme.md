@@ -66,6 +66,10 @@ This project relies on the following libraries:
 [![Soft Shadows Video](SoftshadowsImage.png)](SoftShadowsVideo.mp4)
 
 
+https://github.com/user-attachments/assets/73447006-49df-43e3-95bf-025ecb09f4d9
+
+
+
 ## References
 
 - [WebGL 2.0 Specification](https://www.khronos.org/registry/webgl/specs/latest/2.0/)
