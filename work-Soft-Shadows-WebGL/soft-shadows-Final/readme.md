@@ -63,10 +63,8 @@ This project relies on the following libraries:
 
 ### Vídeo
 
-[![Soft Shadows Video](SoftshadowsImage.png)](SoftShadowsVideo.mp4)
+[![Soft Shadows Video](SoftshadowsImage.png)](SoftShadowsVideo2.mp4)
 
-
-https://github.com/user-attachments/assets/73447006-49df-43e3-95bf-025ecb09f4d9
 
 
 
