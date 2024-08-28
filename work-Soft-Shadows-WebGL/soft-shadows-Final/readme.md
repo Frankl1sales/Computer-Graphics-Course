@@ -1,50 +1,83 @@
-Aqui está a tradução do README.md para o português:
+# WebGL 2.0 Shadow Mapping and Texturing Example
 
----
+This project demonstrates the implementation of shadow mapping and texturing using WebGL 2.0. The code provides a complete example of how to set up and render 3D objects with realistic lighting and shadows.
 
-# Projeto WebGL com Sombreamento e Renderização de Objetos
+## Features
 
-Este projeto demonstra o uso de WebGL para renderizar uma cena 3D com sombreamento baseado em luz direcional e texturas projetadas. Ele utiliza o WebGL 2.0 para renderizar objetos 3D, como esferas, planos e cubos, e aplica efeitos de sombras usando shaders GLSL.
+- **Vertex and Fragment Shaders:** Custom GLSL shaders for handling lighting, shadow mapping, and texturing.
+- **Multiple Objects:** The scene includes a sphere, a plane, and a cube with shadow and texture mapping.
+- **Shadow Mapping:** Implemented to create realistic shadows cast by objects in the scene.
+- **Texturing:** Supports multiple textures including an image-based texture and a procedural checkerboard texture.
+- **OBJ File Loading:** Ability to load and parse 3D models from OBJ files.
 
-## Descrição
+## Shaders
 
-O projeto consiste em:
+### Vertex Shader (vs)
+This shader computes the positions of vertices, applies transformations, and passes data to the fragment shader, such as texture coordinates, normals, and surface-to-view vectors.
 
-- **Shaders GLSL**: Dois shaders principais (`vertex shader` e `fragment shader`) para calcular a posição dos vértices, aplicar texturas e gerar sombras.
-- **Programas WebGL**: Criação de dois programas WebGL para renderizar texturas e cores.
-- **Buffers de Geometria**: Buffers para armazenar as informações de geometria dos objetos 3D, como posições, normais e coordenadas de textura.
-- **Texturas**: Carregamento de texturas para mapear imagens em objetos 3D e aplicação de uma textura de tabuleiro de xadrez gerada dinamicamente.
-- **OBJ Loader**: Carregamento de um arquivo OBJ para renderizar modelos 3D complexos.
-- **Sombras**: Implementação de sombras suaves usando uma textura projetada e um viés para evitar artefatos de sombra.
+### Fragment Shader (fs)
+This shader calculates the final color of each pixel, taking into account lighting, shadows, and textures. It uses a combination of diffuse lighting, shadow mapping, and color multiplication.
 
-## Requisitos
+### Additional Shaders
+- `colorVS`: A simplified vertex shader for rendering objects with a solid color.
+- `colorFS`: A fragment shader for rendering objects with a single color.
 
-- Um navegador moderno com suporte para WebGL 2.0.
-- Uma conexão à internet para carregar o modelo OBJ e as texturas.
+## Usage
 
-## Como Executar
+1. **Setup WebGL Context:**
+   - Initialize the WebGL 2.0 context.
+   - Create and compile the shader programs.
 
-1. Clone este repositório em sua máquina local.
-2. Abra o arquivo `index.html` em um navegador com suporte a WebGL 2.0.
-3. A cena 3D será renderizada automaticamente, mostrando objetos como esferas, cubos e um plano com sombreamento e sombras projetadas.
+2. **Load OBJ Models:**
+   - Fetch and parse OBJ files to generate 3D models.
+   
+3. **Texture Initialization:**
+   - Load textures from image files.
+   - Create procedural textures like a checkerboard.
 
-## Estrutura do Código
+4. **Render Loop:**
+   - Continuously render the scene, applying shadows and textures to the objects.
 
-- `vs`: Vertex shader que calcula a posição dos vértices e aplica transformações de textura e iluminação.
-- `fs`: Fragment shader que aplica texturas, sombras e calcula a iluminação baseada em um vetor de luz direcional.
-- `colorVS` e `colorFS`: Shaders simples para renderização de cores sólidas.
-- `main()`: Função principal que inicializa o contexto WebGL, configura os programas de shaders, cria os buffers de geometria e carrega as texturas e modelos 3D.
+## Dependencies
 
-## Referências
+This project relies on the following libraries:
+
+- [twgl.js](https://twgljs.org/) for handling WebGL boilerplate and simplifying shader setup.
+- A 3D model loader to parse OBJ files.
+
+## How to Run
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/webgl-shadow-mapping.git
+   ```
+
+2. Open `index.html` in a web browser that supports WebGL 2.0.
+
+3. Explore the 3D scene with objects and observe the shadows and textures applied.
+
+## Screenshots
+
+![Soft Shadows Image](SoftshadowsImage.png)
+
+### Vídeo
+
+[![Soft Shadows Video](SoftshadowsImage.png)](SoftShadowsVideo.mp4)
+
+
+## References
 
 - [WebGL 2.0 Specification](https://www.khronos.org/registry/webgl/specs/latest/2.0/)
 - [GLSL Shaders](https://www.opengl.org/documentation/glsl/)
 - [TWGL.js Library](https://twgljs.org/)
 
-## Licença
+## License
 
-Este projeto é licenciado sob os termos da licença MIT. Consulte o arquivo `LICENSE` para mais informações.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## Acknowledgments
 
-Essa tradução reflete as principais partes do código e seus propósitos dentro do projeto, ajustando para o contexto de desenvolvimento WebGL e shaders.
+- The implementation uses `twgl.js` for managing WebGL operations.
+- Thanks to the WebGL 2.0 community for the tutorials and examples that inspired this project.
+
